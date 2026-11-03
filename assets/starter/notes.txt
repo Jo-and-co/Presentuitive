@@ -1,0 +1,30 @@
+PRESENTER NOTES
+This is the script. Edit it here, save, then press F5 in the deck.
+Nothing in this file is code. Text above the first heading is ignored.
+
+  === 3 · A label for you ===   starts a slide; the number is the slide number
+  blank line                    starts a new paragraph in the panel
+  --- beat ---                  turns the page when the slide's beat changes
+  # a hash line                 is a comment, never shown
+
+A slide with data-beats="N" has N+1 states, so a slide that uses --- beat ---
+needs N+1 blocks. One block with no marker just stays up for the whole slide.
+
+=== 0 · Title ===
+Opening line.
+
+=== 1 · Morph demo ===
+What you say while the figure sits alone.
+
+--- beat ---
+
+What you say once the point has arrived.
+
+=== 2 · Data demo ===
+The script for this slide.
+
+=== 3 · The turn ===
+The script for this slide.
+
+=== 4 · Close ===
+The last thing you say.

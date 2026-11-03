@@ -1,0 +1,224 @@
+/* ============================================================================
+   Deck motion
+   Four registers, assigned by content type. Invariant 1: motion argues, it
+   never decorates. If an animation does not carry a piece of the argument,
+   it does not belong in this file.
+
+   The common failure: opacity 0->1 + translateY(30px) at the same duration,
+   applied to everything. That is not a motion vocabulary, it is one
+   gesture. So the test each register has to pass is not "different duration" —
+   it is *different gesture*. Duration alone reads as the same idea, slower.
+
+     B · editorial   type travels a little and locks          320ms
+     C · precision   no travel at all; it snaps into place    220ms
+     D · data        the mark itself grows/draws/counts    600-900ms
+     A · cinematic   weighted, long tail, settles         900-1400ms
+
+   Register A is scarce: pick a few moments per deck and name them in deck-brief.md
+   (one approved deck allowed four). Set pieces are NOT register A by default. Scarcity
+   is the whole point: the shift into cinematic is itself the signal that something
+   matters.
+   ========================================================================= */
+
+/* --- beat base -------------------------------------------------------------
+   Every revealable element is hidden until its beat arrives. The register
+   class decides how it arrives. */
+
+[data-b] { opacity: 0; }
+[data-b].in { opacity: 1; }
+
+/* An element that has been superseded but not removed -- used where a later
+   beat should recede rather than vanish. */
+[data-b].dim { opacity: .26; }
+
+
+/* --- B · editorial ---------------------------------------------------------
+   Headlines, labels, section openers. Type travels a short distance and locks.
+   12px is the ceiling; 30px reads as sliding. */
+
+.m-b {
+  transform: translateY(12px);
+  transition: opacity .40s var(--ease-entrance),
+              transform .40s var(--ease-entrance);
+}
+.m-b.in { transform: none; }
+
+/* Rules draw left to right rather than fading -- an editorial gesture, and it
+   gives a headline something to land against. */
+.m-b-rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .46s var(--ease-entrance);
+}
+.m-b-rule.in { transform: scaleX(1); }
+
+/* --- stagger ---------------------------------------------------------------
+   siblings that share a beat cascade instead of snapping together.
+   Set --i (0,1,2...) on each sibling; the delay is --i steps of --stagger.
+   Composes with any register class -- .stg only adds transition-delay, the
+   register class still owns the gesture. Reverse nav uses .instant, which
+   zeroes all durations and delays, so stepping back never replays the cascade.
+   Keep lists short: at --i=6 the last sibling is already ~420ms behind the
+   first, which is the ceiling before a cascade reads as a queue.
+
+   Doubled selector (.stg.stg) is deliberate: the register classes set their
+   transition with the shorthand, which resets transition-delay to 0. A plain
+   single-class .stg would lose to a later-defined register rule; the extra
+   specificity makes the delay win regardless of source order or which
+   register it composes with. */
+.stg.stg { transition-delay: calc(var(--i, 0) * var(--stagger)); }
+
+
+/* --- C · precision ---------------------------------------------------------
+   Process and system diagrams. Mirrors operations discipline: it clicks into
+   position with zero overshoot and, critically, *zero travel*. No y-drift at
+   all -- that is what separates it from B at a glance rather than on a
+   stopwatch. The scale is 0.985, small enough to read as focus, not motion. */
+
+.m-c {
+  transform: scale(.985);
+  transition: opacity .22s var(--ease-prec),
+              transform .22s var(--ease-prec);
+}
+.m-c.in { transform: none; }
+
+/* Connectors between diagram nodes draw along their own path. --len is set
+   from getTotalLength() at paint time; see engine.js. */
+.m-c-draw {
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+  transition: stroke-dashoffset .34s var(--ease-prec);
+}
+[data-b].in .m-c-draw, .m-c-draw.in { stroke-dashoffset: 0; }
+
+
+/* --- D · data --------------------------------------------------------------
+   Charts, numbers, quantities. Motion expresses magnitude: the mark itself
+   grows to its value, so the animation *is* the datum rather than an entrance
+   effect wrapped around it. Nothing here fades in. */
+
+.m-d { transition: opacity .5s var(--ease-data); }
+
+/* Lines draw. Duration scales with length via --len-dur where it matters. */
+.m-d-draw {
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+  transition: stroke-dashoffset var(--len-dur, .9s) var(--ease-data);
+}
+[data-b].in .m-d-draw, .m-d-draw.in { stroke-dashoffset: 0; }
+
+/* Bars fill from their origin. transform-box:fill-box is required inside SVG
+   or transform-origin resolves against the whole viewport instead of the
+   element. */
+.m-d-grow {
+  transform: scaleX(0);
+  transform-box: fill-box;
+  transform-origin: left center;
+  transition: transform .75s var(--ease-data);
+}
+[data-b].in .m-d-grow, .m-d-grow.in { transform: scaleX(1); }
+
+.m-d-rise {
+  transform: scaleY(0);
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  transition: transform .75s var(--ease-data);
+}
+[data-b].in .m-d-rise, .m-d-rise.in { transform: scaleY(1); }
+
+/* Numbers count. Driven by engine.js; this only governs the container. */
+.m-d-count { transition: opacity .3s var(--ease-data); }
+
+/* a figure whose MAGNITUDE is the argument lands with weight --
+   it enters 3% oversize and settles to 1. Distinct from count-up (which rolls
+   the digits): use this on a single hero number where the size itself is the
+   point, not the counting. Do not combine the two on one element. */
+.m-d-weight {
+  transform: scale(1.03);
+  transition: opacity .45s var(--ease-data),
+              transform .60s var(--ease-entrance);
+}
+.m-d-weight.in { transform: none; }
+
+
+/* --- A · cinematic ---------------------------------------------------------
+   A FEW MOMENTS ONLY. Slow, weighted, settles.
+
+   The differentiator is not duration -- it is that the type *comes to rest*.
+   Letter-spacing opens slightly and closes as the element settles, which reads
+   as weight arriving. Combined with a longer travel and a very long tail, it
+   feels like the deck slowing down, which is exactly the argument being made
+   at each moment it is allowed. */
+
+.m-a {
+  transform: translateY(24px);
+  letter-spacing: .012em;
+  transition: opacity 1.1s var(--ease-cine),
+              transform 1.1s var(--ease-cine),
+              letter-spacing 1.1s var(--ease-cine);
+}
+.m-a.in {
+  transform: none;
+  letter-spacing: inherit;
+}
+
+/* The slowest variant, for the single heaviest beat in a cinematic scene.
+   Generous hold before it starts -- the pause is part of the gesture. */
+.m-a-slow {
+  transform: translateY(28px);
+  transition: opacity 1.4s var(--ease-cine) .18s,
+              transform 1.4s var(--ease-cine) .18s;
+}
+.m-a-slow.in { transform: none; }
+
+/* Set piece 4: the close. The second line of the title transforms in place
+   while nothing else on screen moves. Handled as a crossfade between two
+   absolutely-positioned lines so the first line's metrics never shift. */
+.m-a-swap { position: relative; display: block; }
+.m-a-swap > * {
+  transition: opacity 1.2s var(--ease-cine);
+}
+
+
+/* --- reverse navigation ----------------------------------------------------
+   Stepping backwards must not replay animation -- the audience already saw it,
+   and replaying reads as a bug. .instant is applied for one frame while state
+   is rewritten, then removed. */
+
+.instant, .instant * {
+  transition: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+/* back-step snap. Unlike .instant (whole deck, kills the slide too), .rewind
+   sits on the INCOMING scene and suppresses only its DESCENDANTS' transitions --
+   so beats snap to their lit state while the scene CONTAINER (the .rewind
+   element itself, not a descendant) keeps its directional slide. Transitions
+   only: ambient keyframes (looping rings, packets) are left running so they do
+   not visibly reset for the one frame .rewind is applied. */
+.rewind * {
+  transition: none !important;
+}
+
+
+/* --- accessibility ---------------------------------------------------------
+   Collapse all four registers to instant state changes. Everything above is
+   opacity/transform/stroke, so removing duration leaves correct final state
+   with no layout consequences. */
+
+@media (prefers-reduced-motion: reduce) {
+  /* The :root:not(.force-motion) guard lets the M key re-enable motion at
+     runtime even when the OS asks to reduce it — insurance for a borrowed
+     laptop or battery-saver state on presentation day. Default still honours
+     the OS setting; force-motion is a deliberate manual override. */
+  :root:not(.force-motion) *,
+  :root:not(.force-motion) *::before,
+  :root:not(.force-motion) *::after {
+    transition-duration: .01ms !important;
+    transition-delay: 0ms !important;      /* .stg must not stagger reveals here */
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- deck build: b01 · bump this stamp on every build so a stale cache is obvious -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deck title</title>
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/motion.css">
+<link rel="stylesheet" href="styles/slides.css">
+</head>
+<body>
+<div id="fit">
+  <div id="deck">
+
+    <!-- 0 · title: no corner label, composed in frame -->
+    <section class="scene" data-beats="0" data-zone="part-a" data-scene="title">
+      <div class="pad demo-title">
+        <h1 class="t-display-xl">The talk title</h1>
+        <p class="t-lead">Name and context</p>
+      </div>
+    </section>
+
+    <!-- 1 · light, one click, one morph: the figure moves to make room for the point -->
+    <section class="scene" data-beats="1" data-zone="part-a" data-scene="morph-demo">
+      <div class="pad demo-layout">
+        <h2 class="t-display-l demo-head">The headline stays on one line</h2>
+        <svg class="demo-figure" viewBox="0 0 400 400" aria-hidden="true">
+          <circle cx="200" cy="200" r="170" fill="var(--navy)"/>
+        </svg>
+        <p class="t-lead demo-point m-b" data-b="1">The point arrives after the figure has made room for it.</p>
+      </div>
+    </section>
+
+    <!-- 2 · dark: a number counts, a line draws. data-auto paces beat 2 to speech -->
+    <section class="scene on-dark" data-dark data-beats="2" data-auto=",3" data-zone="part-b" data-scene="data-demo">
+      <div class="pad demo-layout">
+        <div class="t-stat demo-stat m-d-count" data-b="1" data-count="120" data-from="0" data-dur="700" data-post=" min">120 min</div>
+        <svg class="demo-chart" viewBox="0 0 900 300" aria-hidden="true">
+          <path class="demo-line m-d-draw" data-b="2" d="M0,260 C220,250 300,120 480,110 S760,40 900,24"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 3 · act breaker: tier 1 is scarce, use it only where the story turns -->
+    <section class="scene" data-tier="1" data-beats="0" data-zone="part-b" data-scene="turn">
+      <div class="pad demo-title"><h2 class="t-display-xl">The turn in the story</h2></div>
+    </section>
+
+    <!-- 4 · close -->
+    <section class="scene" data-tier="2" data-beats="1" data-zone="part-b" data-scene="close">
+      <div class="pad demo-title">
+        <h2 class="t-display-l">The last line</h2>
+        <p class="t-lead m-b" data-b="1">Thank you.</p>
+      </div>
+    </section>
+
+    <div id="slide-no" aria-hidden="true"></div>
+    <div id="act-eyebrow" aria-hidden="true"></div>
+    <div class="rail" id="rail">
+      <div class="spine" id="spine"></div>
+      <div class="rail-id">NAME · CONTEXT</div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/spine.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/setpieces.js"></script>
+<script src="js/notes.js"></script>
+<script src="js/presenter.js"></script>
+</body>
+</html>

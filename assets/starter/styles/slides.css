@@ -1,0 +1,27 @@
+/* Per-slide layout. Replace the demo rules; keep the idioms.
+   Never declare `position` on a class that shares the .pad element: .pad is the
+   absolute 1408x720 containing block and overriding it collapses the layout. */
+
+/* data-dark only flags the register for the engine and chrome. Paint it here. */
+.scene[data-dark] { background: var(--navy-deep); color: var(--tx, #F4F8FC); }
+
+.demo-title { display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+
+.demo-layout { height: 720px; }
+.demo-head { position: absolute; left: 0; top: 32px; white-space: nowrap; }
+
+/* The morph: one object relocates, on the beat, to make room for another.
+   transform only, gated with :has(), with a reduced-motion escape. */
+.demo-figure {
+  position: absolute; left: 504px; top: 170px; width: 400px; height: 400px;
+  transition: transform .9s var(--ease-cine);
+}
+.scene[data-scene="morph-demo"]:has(.demo-point.in) .demo-figure { transform: translateX(-504px); }
+.demo-point { position: absolute; left: 520px; top: 300px; width: 760px; transition-delay: .34s; }
+@media (prefers-reduced-motion: reduce) {
+  :root:not(.force-motion) .demo-figure { transition: none; }
+}
+
+.demo-stat  { position: absolute; left: 0; top: 40px; color: var(--tx, #F4F8FC); }
+.demo-chart { position: absolute; left: 0; top: 300px; width: 1100px; height: 367px; overflow: visible; }
+.demo-line  { fill: none; stroke: var(--amber-on-dark); stroke-width: 6; stroke-linecap: round; }

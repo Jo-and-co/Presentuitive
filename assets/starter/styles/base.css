@@ -1,0 +1,459 @@
+/* STARTER NOTE (presentuitive): the colour VALUES and token NAMES below are an
+   example palette, kept so the file works out of the box. There is no fixed palette:
+   rewrite them from the deck's kickoff decision before building any slide, then
+   re-run build/contrast.py. Scene transition weight is set with data-tier="1|2|3"
+   on the <section>; tier 1 is scarce on purpose. */
+/* ============================================================================
+   Deck base
+   Palette, type, stage, layout. Everything here propagates into every slide,
+   so settle it first.
+
+   Verified by build/contrast.py -- every colour pair the deck uses is measured
+   against the projector floor (4.5:1 text, 3:1 chart strokes), not assumed.
+   ========================================================================= */
+
+/* --- fonts -----------------------------------------------------------------
+   Inter-dominant, one reserved serif (Newsreader), no mono.
+   Subset to 113 glyphs by build/fonts.py and embedded as woff2. No network
+   dependency: the deck renders identically on a machine with no internet.
+   src is rewritten to a data: URI by build.mjs for the single-file output.
+
+   Inter carries its opsz axis (14..32); font-optical-sizing:auto (below) picks
+   the display cut at large sizes and the text cut in body copy. */
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/inter.woff2') format('woff2');
+  font-weight: 300 700;              /* variable -- one file, all weights */
+  font-style: normal;
+  font-display: block;               /* block, not swap: no FOUT on stage */
+}
+/* Reserved serif. Used at the title, section markers and close ONLY -- ~3-4
+   appearances, so it reads as deliberate punctuation, not a competing voice.
+   Swappable: replace this one src to try a different serif. */
+@font-face {
+  font-family: 'Newsreader';
+  src: url('../assets/newsreader.woff2') format('woff2');
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: block;
+}
+
+/* --- tokens ------------------------------------------------------------- */
+
+:root {
+  /* ink and ground */
+  --navy:      #002E69;   /* headlines, chart series 1 */
+  --navy-deep: #001B3D;   /* rare full-bleed panels */
+  --navy-mid:  #0B4A94;   /* chart series 2 */
+  --paper:     #FFFFFF;
+  --warm:      #F6F9FB;   /* alternate panel base */
+  --ink:       #0E1A2B;   /* body text */
+  /* projector pass: --soft #5A6B80 (4.0:1) washed out in a bright
+     room. Darkened toward slate #45566C (5.35:1) so secondary text and
+     annotations survive projection. Semantic role unchanged. */
+  --soft:      #45566C;   /* secondary text, annotations   5.35:1 */
+  --rule:      #DCE4EC;   /* hairlines -- never rendered under 2px */
+
+  /* accent.
+     Two skies, deliberately. A single --sky #5AC2E7 was the first choice,
+     but measured against white it is 2.04:1 -- below the 3:1
+     stroke floor, so a sky-coloured chart line would wash out on a projector.
+     --sky survives for fills and washes, where the rule does not bite;
+     --sky-deep (3.67:1) carries anything that has to be *seen* as a mark. */
+  --sky:       #5AC2E7;   /* fills, highlights, large shapes only */
+  --sky-deep:  #1B8FBF;   /* chart series 3, strokes, data marks */
+  --sky-wash:  #EAF7FC;   /* zone backgrounds */
+
+  /* The single accent. Same correction as sky: the first choice, #D4890E,
+     measured 2.87:1. */
+  --amber:     #C17D0A;   /* accent strokes and fills       3.38:1 */
+  --amber-ink: #9A5F07;   /* accent label *text*            5.23:1 */
+  /* the single accent, tuned for a DARK ground. On navy the
+     text-contrast --amber reads muddy; this luminous cut pops the one accent in
+     a bright room. Used only on dark scenes — base --amber is left untouched so
+     nothing on white shifts. */
+  --amber-on-dark: #E7A23A;
+
+  /* motion -- see motion.css for the four registers */
+  --ease-data:  cubic-bezier(.22, .61, .36, 1);
+  --ease-prec:  cubic-bezier(.4, 0, .2, 1);
+  --ease-cine:  cubic-bezier(.16, .84, .28, 1);
+  /* the deck-wide entrance curve. Expo-out -- fast off the mark,
+     a long decel that lets type arrive and settle rather than slide. Every
+     editorial entrance uses this so the whole deck shares one arrival gesture
+     across slides, not just within them. */
+  --ease-entrance: cubic-bezier(.22, 1, .36, 1);
+  /* Stagger step for sibling reveals. 70ms sits mid-range of the 60-90ms
+     rule; the calc in .stg caps drift so a long list never opens a gap wider
+     than the eye reads as "one after another". */
+  --stagger: 70ms;
+  --icon-stroke: 1.75;
+
+  /* type -- one workhorse family, one reserved serif.
+     Newsreader is the serif. --font-special is the
+     single routing point for the ~4 serif moments. */
+  --font-sans:    'Inter', system-ui, sans-serif;
+  --font-serif:   'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-special: var(--font-serif);
+
+  /* legacy aliases so existing rules keep resolving during the transition */
+  --display: var(--font-sans);
+  --body:    var(--font-sans);
+  --mono:    var(--font-sans);
+
+  /* layout */
+  --pad-x: 96px;
+  --pad-t: 64px;
+  --pad-b: 116px;         /* clears the bottom rail */
+
+  /* THE TOP LINE. Every slide's first line of text starts here, and nothing
+     starts higher. It is a separate token from --pad-t on purpose: --pad-t is
+     the geometric top of the content BOX (some slides put a diagram or a
+     centred stack there), while --top-line is where the eye lands. Keeping
+     them apart means the copy can be pulled to a common edge without dragging
+     every centred layout down 32px with it.
+     Why 96: #act-eyebrow occupies y 40->53, so 96 leaves 43px of clear air
+     under it and the act label never reads as part of the slide's own heading.
+     */
+  --top-line: 96px;
+}
+
+/* --- stage -----------------------------------------------------------------
+   Fixed 1600x900, scaled to fit the viewport. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #0A1420;             /* letterbox surround */
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;       /* Inter picks display vs text cut by size */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* #fit clips the stage: nothing may paint beyond the 1600x900 board. Decorative
+   bleed must be deliberate and sit inside a scene that clips it, never escape
+   here (). Centering is done in engine.js fit() by translate, not by
+   grid alignment -- an oversized transformed child is not reliably centred by
+   place-items, which pins it to the start edge (measured: top-left at
+   800(1-s),450(1-s) instead of centre). */
+#fit { position: fixed; inset: 0; overflow: hidden; }
+
+#deck {
+  width: 1600px;
+  height: 900px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;           /* fit() translates to centre from here */
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.scene { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.scene.live { opacity: 1; pointer-events: auto; }
+
+/* --- scene-to-scene transitions () -----------------
+   One arrival gesture shared across every slide, so the deck reads as one
+   continuous record rather than a stack of cards. The OUTGOING scene fades on
+   losing .live (the opacity transition below). The INCOMING scene fades AND
+   slides in along the axis of travel — expo-out (--ease-entrance), fast off the
+   mark with a long settle. Into a dark scene both run longer, so the room
+   quiets before the proof lands.
+
+   directional continuity: the engine writes #deck[data-dir] on every real
+   scene change. Forward advance slides the incoming scene up from below-right
+   (sceneInFwd); a back step slides it in from below-left (sceneInBack) — the
+   two move in opposite directions so reverse navigation reads as going back,
+   not as a hard cut. A jump maps to no matching rule, so goto/presenter/Home/
+   End/boot still hard-cut.
+
+   How beats stay put: paint() toggles .live only on a scene change, so the
+   keyframe never re-fires on a beat advance within a scene. On a back step the
+   engine also puts .rewind on the incoming scene, which snaps its beats
+   (transitions off) WITHOUT touching the scene container itself, so the slide
+   plays while nothing the presenter already saw replays. prefers-reduced-motion
+   collapses every arrival to a plain cut. */
+.scene {
+  transition: opacity var(--scene-fade, .30s) var(--ease-entrance);
+}
+#deck[data-dir="fwd"]  .scene.live { animation: sceneInFwd  var(--scene-rise, .46s) var(--ease-entrance) both; }
+#deck[data-dir="back"] .scene.live { animation: sceneInBack var(--scene-rise, .46s) var(--ease-entrance) both; }
+.scene[data-dark], .scene.on-dark { --scene-fade: .46s; --scene-rise: .56s; }
+
+/* --- transition WEIGHT, by what the slide is doing ---------------------------
+   Everything above is the default advance. These three tiers vary it so the
+   deck's structure is audible in the motion rather than only in the spine.
+   Two variables and nothing else - no new keyframes, no engine involvement.
+   The rule is duration only: every slide still enters the same way, from the
+   same direction, by the same 22px. A slide that moved DIFFERENTLY would read
+   as a different deck; a slide that takes longer just reads as more important.
+
+   1 · ACT OPENERS - the four breaker slides that name a turn in the story.
+   Slowest in the deck. These are the only places the audience should feel the
+   deck stop and change subject, so they get an unmistakable settle. */
+.scene[data-tier="1"] {
+  --scene-fade: .58s; --scene-rise: .92s;
+}
+
+/* ...and they are the ONLY slides that move differently. Duration alone was
+   not readable: at 22px of travel, .58s against .30s is a difference you can
+   measure and cannot see. An act break is the one moment the deck is allowed
+   to announce itself, so it gets its own keyframe - 104px of rise instead of
+   22, and a fractional settle under 1 so the slide arrives from below and
+   comes to rest rather than sliding into place. Because the incoming fade
+   (.58s) is slower than the rise is quick off the mark, the outgoing slide is
+   still on screen underneath for the first third: the breaker reads as rising
+   THROUGH the slide it replaces, which is the point.
+
+   Deliberately NOT applied deck-wide. Thirty-four slides that all do this
+   reads as a template; four that do it reads as structure. If you add a fifth,
+   it had better be an act break.
+   Transform only - opacity stays with the .scene transition above, so this
+   never fights the engine's own fade. */
+#deck[data-dir="fwd"] .scene[data-tier="1"].live {
+  animation-name: actBreakFwd;
+}
+#deck[data-dir="back"] .scene[data-tier="1"].live {
+  animation-name: actBreakBack;
+}
+@keyframes actBreakFwd {
+  from { transform: translate(0, 104px) scale(.988); }
+  to   { transform: translate(0, 0) scale(1); }
+}
+/* Stepping BACK onto a breaker mirrors it: the slide drops in from above, so
+   the direction of travel always matches the direction of travel through the
+   deck. Shorter throw - a backward step is a correction, not an arrival. */
+@keyframes actBreakBack {
+  from { transform: translate(0, -72px) scale(.992); }
+  to   { transform: translate(0, 0) scale(1); }
+}
+
+/* 2 · THE SPINE OF THE ARGUMENT - the thesis, the heading screen, the takeaway
+   and the close. Slower than an ordinary advance but faster than an act break:
+   these are landings, not chapter headings. (`heading-ops` and `heading-mkt`
+   used to be listed here too; those two screens were merged back into
+   `heading` and their selectors would have matched nothing.) */
+.scene[data-tier="2"] {
+  --scene-fade: .50s; --scene-rise: .62s;
+}
+
+/* 3 · CONTINUATIONS - a slide that carries straight on from the one before it,
+   same subject, no new claim. Quicker than default so the pair reads as one
+   move rather than two slides. Applied to the second and third parts of things
+   that were split. */
+.scene[data-tier="3"] {
+  --scene-fade: .22s; --scene-rise: .34s;
+}
+
+/* Reduced motion already kills the keyframes elsewhere; these variables only
+   shorten what is left, so nothing here needs a separate guard. */
+@keyframes sceneInFwd {
+  from { transform: translate(22px, 8px); }
+  to   { transform: translate(0, 0); }
+}
+@keyframes sceneInBack {
+  from { transform: translate(-22px, 8px); }
+  to   { transform: translate(0, 0); }
+}
+
+.pad {
+  position: absolute;
+  inset: var(--pad-t) var(--pad-x) var(--pad-b);
+}
+
+/* --- type scale ------------------------------------------------------------
+   ONE family, hierarchy by size + weight. Body floor 22px per the projector
+   rule. Strict rhythm: one size per role, one tracking per role. Only
+   .t-special uses the reserved serif; datelines/data, formerly mono, are now
+   tracked / tabular Inter. */
+
+.t-display-xl {
+  font: 700 96px/.96 var(--font-sans);
+  letter-spacing: -.03em;
+  color: var(--ink);
+}
+.t-display-l {
+  font: 700 64px/1.02 var(--font-sans);
+  letter-spacing: -.022em;
+  color: var(--ink);
+}
+.t-display-m {
+  font: 600 44px/1.08 var(--font-sans);
+  letter-spacing: -.016em;
+  color: var(--ink);
+}
+.t-lead {
+  font: 400 30px/1.40 var(--font-sans);
+  color: var(--soft);
+  letter-spacing: -.006em;
+}
+.t-body {
+  font: 400 22px/1.50 var(--font-sans);
+  color: var(--soft);
+}
+.t-label {
+  font: 600 16px/1.20 var(--font-sans);
+  letter-spacing: .14em;            /* wider tracking replaces the mono texture */
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.t-data {
+  font: 500 15px/1.10 var(--font-sans);
+  letter-spacing: .01em;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+.t-stat {
+  font: 700 112px/1 var(--font-sans);
+  letter-spacing: -.04em;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* the reserved serif -- title, section markers, close only (~3-4 places) */
+.t-special { font-family: var(--font-special); font-optical-sizing: auto; }
+
+/* Colour modifiers -- kept separate so the scale stays about size alone. */
+.ink   { color: var(--ink); }
+.navy  { color: var(--navy); }
+.soft  { color: var(--soft); }
+.amber { color: var(--amber-ink); }
+.paper { color: var(--paper); }
+
+/* --- chrome ----------------------------------------------------------------
+   The bottom rail is the deck's only persistent furniture. It carries the
+   spine on the left and identity on the right, on one baseline, so the bottom
+   band reads as a single quiet strip rather than two competing elements. */
+
+.rail {
+  position: absolute;
+  /* 40px, not --pad-x: the rail is furniture, not content. Pulling it into the
+     corners detaches it from the 96px text column on purpose and hands that
+     width back to the slides. */
+  left: 40px;
+  right: 40px;
+  bottom: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 60;
+}
+
+.rail-id {
+  font: 400 14px/1 var(--mono);
+  letter-spacing: .07em;
+  color: var(--soft);
+}
+
+/* The mono dateline. The deck's quiet through-line -- it makes the
+   presentation read as a record of something that actually happened over
+   24 weeks, at almost zero word cost. */
+.dateline {
+  font: 500 16px/1 var(--mono);
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+/* --- rules -----------------------------------------------------------------
+   Never thinner than 2px. A 1px hairline disappears through a projector. */
+
+.hr {
+  height: 2px;
+  background: var(--rule);
+  border: 0;
+}
+.hr-navy { height: 3px; background: var(--navy); border: 0; }
+
+/* --- icons -----------------------------------------------------------------
+   ONE line-icon system for the whole deck. Geometric, single-weight
+   strokes, currentColor so an icon takes the colour of its context instead of
+   carrying its own. Authored inline as SVG on a 24x24 grid; size is set by
+   font-size on the parent (width/height:1em). NEVER emoji -- emoji render
+   differently per OS and break the one-family type voice. */
+.icon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: -.125em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--icon-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: 0 0 auto;
+}
+
+/* --- spine (variant A) -----------------------------------------------------
+   Lives at the left of the bottom rail. State changes only; see js/spine.js. */
+
+.spine {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.spine-word {
+  font: 500 16px/1 var(--mono);
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--navy);
+  width: 118px;              /* fixed, so bars never shift when the word changes */
+  flex: 0 0 118px;
+}
+.spine-seg {
+  height: 4px;
+  background: var(--rule);
+  /* No transition on background: the change is discrete, at slide transitions
+     only. A transition here would be the sliding fill invariant 4 forbids. */
+}
+.spine-seg.on { background: var(--navy); }
+
+/* Dark scenes (rare full-bleed panels) invert the spine so it stays legible. */
+.scene.on-dark ~ .rail .spine-seg,
+.rail.on-dark .spine-seg { background: rgba(255, 255, 255, .22); }
+.rail.on-dark .spine-seg.on { background: var(--amber-on-dark); }  /* luminous on dark */
+.rail.on-dark .spine-word { color: #fff; }
+.rail.on-dark .rail-id { color: #7C93AD; }
+
+/* --- act eyebrow (audience signpost) --------------------------
+   A single quiet top-left marker naming the current act, aligned to the deck's
+   act transitions. It sits
+   ABOVE where scene t-labels begin (top 96) in its own slot, so it never
+   collides. Driven by js/spine.js from each scene's data-act attribute; scenes
+   with no data-act (title, breath, close) leave it blank and it hides. It
+   inverts on dark scenes with the rail. Secondary weight — never competes. */
+#act-eyebrow {
+  position: absolute;
+  left: 40px;
+  top: 40px;
+  z-index: 55;
+  font: 600 13px/1 var(--font-sans);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #93A0B2;
+  opacity: 0;
+  transition: opacity .4s var(--ease-data), color .4s var(--ease-data);
+  pointer-events: none;
+}
+#act-eyebrow.show { opacity: 1; }
+#act-eyebrow::before {
+  content: "";
+  display: inline-block;
+  /* 32 + 24 = 56, and 40 + 56 = 96: the RULE stays tucked in the corner at
+     x=40 with the rail below it, but the WORDS start on --top-line's own left
+     edge, so the act label and the slide's heading share one left margin
+     instead of sitting 24px apart. Change either number and keep the sum at
+     56, or the top-left corner goes ragged again. */
+  width: 32px; height: 2px;
+  margin-right: 24px;
+  vertical-align: middle;
+  background: var(--amber);
+}
+#act-eyebrow.on-dark { color: #AEBCCB; }
+#act-eyebrow.on-dark::before { background: var(--amber-on-dark); }
