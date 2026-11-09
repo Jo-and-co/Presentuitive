@@ -25,6 +25,8 @@ Turn these notes into a PowerPoint my team can edit.
 
 Small requests stay small: fixing one slide skips the kickoff questions.
 
+For a new deck it asks a few questions about the look first (mood, brand colours, headline type, light or dark), each with a "pick for me" option, then shows three directions to choose from.
+
 ## What's inside
 
 | Path | What it is |
@@ -32,6 +34,8 @@ Small requests stay small: fixing one slide skips the kickoff questions.
 | `SKILL.md` | The main instructions |
 | `references/` | Detail on design, motion, the engine, checking, PPTX and past failures, read only when needed |
 | `assets/starter/` | A working 5-slide HTML deck: beats, morphs, presenter window, notes file, audit script |
+| `assets/starter/styles/themes/` | Five themes (harbour, broadsheet, workshop, poster, hearth). One line in `index.html` swaps the whole look |
+| `assets/starter/style-preview.html` | Shows three themes side by side on your own words, so you pick a look before any slide is built |
 | `assets/examples/planet-3d.js` | A complete WebGL set piece to read before attempting one |
 | `assets/deck-brief-template.md` | Per-deck record of facts, slide jobs, decisions and feedback |
 | `assets/preferences-template.md` | Optional tastes that carry across decks |
@@ -49,7 +53,7 @@ Small requests stay small: fixing one slide skips the kickoff questions.
 
 ## Your own preferences (optional)
 
-Copy `assets/preferences-template.md` to `~/.claude/presentuitive-preferences.md` and fill it in. It overrides the skill's default tastes, including voice, colours, punctuation and how much motion you like.
+Copy `assets/preferences-template.md` to `~/.claude/presentuitive-preferences.md` and fill it in. It overrides the skill's default tastes, including voice, colours, punctuation and how much motion you like. It can also hold a saved style, so every deck starts from your look.
 
 ## Other skills
 

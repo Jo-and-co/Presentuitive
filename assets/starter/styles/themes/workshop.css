@@ -1,0 +1,56 @@
+/* Workshop: technical, precise, built.
+   Cool off-white, deep teal, and signal orange used the way a warning label
+   uses it. Barlow is a sturdy grotesque with an engineering accent. JetBrains
+   Mono carries labels, data and the dateline, so numbers line up and read as
+   measured. Suits engineering, product, data, process and systems talks.
+
+   @fonts
+   Barlow         | Barlow:wght@400;500;600;700
+   JetBrains Mono | JetBrains+Mono:wght@400..700
+*/
+@font-face { font-family: 'Barlow'; src: url('../../assets/fonts/barlow-400.woff2') format('woff2'); font-weight: 400; font-display: block; }
+@font-face { font-family: 'Barlow'; src: url('../../assets/fonts/barlow-500.woff2') format('woff2'); font-weight: 500; font-display: block; }
+@font-face { font-family: 'Barlow'; src: url('../../assets/fonts/barlow-600.woff2') format('woff2'); font-weight: 600; font-display: block; }
+@font-face { font-family: 'Barlow'; src: url('../../assets/fonts/barlow-700.woff2') format('woff2'); font-weight: 700; font-display: block; }
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../../assets/fonts/jetbrains-mono.woff2') format('woff2');
+  font-weight: 400 700; font-style: normal; font-display: block;
+}
+
+:root, .theme-workshop {
+  --ground:       #F4F5F2;
+  --ground-alt:   #EAECE7;
+  --wash:         #DFEBE9;
+  --ink:          #16191D;
+  --ink-soft:     #4A535D;
+  --rule:         #D3D8D1;
+  --primary:      #0F5257;   /* deep teal */
+  --primary-mid:  #2F7B81;
+  --support:      #9CCBC6;   /* FILL ONLY */
+  --support-deep: #5A6878;   /* slate */
+  --accent:       #D24510;   /* signal orange */
+  --accent-ink:   #AE380A;
+
+  --dark-ground:    #12181B;
+  --dark-ink:       #EEF1EE;
+  --dark-ink-soft:  #A5AFB5;
+  --dark-primary:   #6CC6C0;
+  --dark-rule:      rgba(238, 241, 238, .18);
+  --accent-on-dark: #FF7B42;
+
+  --letterbox:        #0A0E10;
+  --eyebrow:          #8D959C;
+  --eyebrow-on-dark:  #95A0A7;
+  --rail-id-on-dark:  #7D8990;
+
+  --font-display: 'Barlow', system-ui, sans-serif;
+  --font-body:    'Barlow', system-ui, sans-serif;
+  --font-label:   'JetBrains Mono', ui-monospace, monospace;
+  --font-special: 'JetBrains Mono', ui-monospace, monospace;
+  --display-weight:  700;
+  --display-track:   .6;
+  --display-stretch: 100%;
+  --display-case:    none;
+  --label-track:     .04em;
+}

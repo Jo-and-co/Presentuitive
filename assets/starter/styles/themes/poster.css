@@ -1,0 +1,51 @@
+/* Poster: loud, confident, made to be seen from the back row.
+   Condensed heavy capitals in Archivo, ultramarine on newsprint, a hard red
+   accent, and yellow used only as a fill. Dark scenes go black with yellow.
+   Keep the words few per slide, or the look falls apart. Suits launches,
+   pitches, campaigns, keynotes and anything that has to wake a room up.
+
+   @fonts
+   Archivo | Archivo:wdth,wght@62..125,400..800
+*/
+@font-face {
+  font-family: 'Archivo';
+  src: url('../../assets/fonts/archivo.woff2') format('woff2');
+  font-weight: 400 800; font-stretch: 62% 125%; font-style: normal; font-display: block;
+}
+
+:root, .theme-poster {
+  --ground:       #F3F0E8;
+  --ground-alt:   #E9E4D8;
+  --wash:         #E1E5F4;
+  --ink:          #121212;
+  --ink-soft:     #4A4A47;
+  --rule:         #D5D0C3;
+  --primary:      #1F3BB3;   /* ultramarine */
+  --primary-mid:  #3A3A38;
+  --support:      #F2C230;   /* FILL ONLY: yellow */
+  --support-deep: #8C6B00;
+  --accent:       #D3261C;   /* hard red */
+  --accent-ink:   #B41F16;
+
+  --dark-ground:    #121212;
+  --dark-ink:       #F3F0E8;
+  --dark-ink-soft:  #B4B0A6;
+  --dark-primary:   #F2C230;
+  --dark-rule:      rgba(243, 240, 232, .20);
+  --accent-on-dark: #FF6A50;
+
+  --letterbox:        #0A0A0A;
+  --eyebrow:          #8E8A80;
+  --eyebrow-on-dark:  #A29E94;
+  --rail-id-on-dark:  #8A867D;
+
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-body:    'Archivo', system-ui, sans-serif;
+  --font-label:   'Archivo', system-ui, sans-serif;
+  --font-special: 'Archivo', system-ui, sans-serif;
+  --display-weight:  800;
+  --display-track:   .25;
+  --display-stretch: 75%;
+  --display-case:    uppercase;
+  --label-track:     .12em;
+}

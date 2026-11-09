@@ -2,8 +2,8 @@
    Never declare `position` on a class that shares the .pad element: .pad is the
    absolute 1408x720 containing block and overriding it collapses the layout. */
 
-/* data-dark only flags the register for the engine and chrome. Paint it here. */
-.scene[data-dark] { background: var(--navy-deep); color: var(--tx, #F4F8FC); }
+/* data-dark remaps the colour roles (base.css), so a dark scene needs no paint
+   here. Name roles, never hex: the theme file owns every colour. */
 
 .demo-title { display: flex; flex-direction: column; justify-content: center; gap: 28px; }
 
@@ -22,6 +22,6 @@
   :root:not(.force-motion) .demo-figure { transition: none; }
 }
 
-.demo-stat  { position: absolute; left: 0; top: 40px; color: var(--tx, #F4F8FC); }
+.demo-stat  { position: absolute; left: 0; top: 40px; color: var(--ink); }
 .demo-chart { position: absolute; left: 0; top: 300px; width: 1100px; height: 367px; overflow: visible; }
-.demo-line  { fill: none; stroke: var(--amber-on-dark); stroke-width: 6; stroke-linecap: round; }
+.demo-line  { fill: none; stroke: var(--accent-on-dark); stroke-width: 6; stroke-linecap: round; }

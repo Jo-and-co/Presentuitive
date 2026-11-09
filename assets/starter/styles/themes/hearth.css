@@ -1,0 +1,58 @@
+/* Hearth: warm, human, approachable.
+   A cream ground with forest green and terracotta. Fraunces, with its soft
+   axis pinned, gives headlines a rounded, friendly serif, and Figtree keeps
+   the body clean and easy. Suits people, education, health, community and
+   culture, and any talk where the audience should feel spoken to, not
+   presented at.
+
+   @fonts
+   Fraunces | Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,0..100,0..1 | SOFT=50,WONK=0
+   Figtree  | Figtree:wght@400..700
+*/
+@font-face {
+  font-family: 'Fraunces';
+  src: url('../../assets/fonts/fraunces.woff2') format('woff2');
+  font-weight: 400 700; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: 'Figtree';
+  src: url('../../assets/fonts/figtree.woff2') format('woff2');
+  font-weight: 400 700; font-style: normal; font-display: block;
+}
+
+:root, .theme-hearth {
+  --ground:       #FBF7F1;
+  --ground-alt:   #F3ECE1;
+  --wash:         #E4EDE7;
+  --ink:          #2A211B;
+  --ink-soft:     #5C4F45;
+  --rule:         #E4D9CA;
+  --primary:      #2F5D4E;   /* forest */
+  --primary-mid:  #5B8A77;
+  --support:      #EBBE9F;   /* FILL ONLY: peach */
+  --support-deep: #8A6A3E;
+  --accent:       #B4502D;   /* terracotta */
+  --accent-ink:   #9A4224;
+
+  --dark-ground:    #1F3A30;
+  --dark-ink:       #FBF3E8;
+  --dark-ink-soft:  #C2CCC2;
+  --dark-primary:   #F2C6A8;
+  --dark-rule:      rgba(251, 243, 232, .20);
+  --accent-on-dark: #F29A72;
+
+  --letterbox:        #13221C;
+  --eyebrow:          #A0948A;
+  --eyebrow-on-dark:  #AFBDB3;
+  --rail-id-on-dark:  #93A69A;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'Figtree', system-ui, sans-serif;
+  --font-label:   'Figtree', system-ui, sans-serif;
+  --font-special: 'Fraunces', Georgia, serif;
+  --display-weight:  600;
+  --display-track:   .4;
+  --display-stretch: 100%;
+  --display-case:    none;
+  --label-track:     .12em;
+}

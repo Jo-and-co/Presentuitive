@@ -47,6 +47,7 @@ Each row cost real rounds. Read it as a list of things that will happen again un
 | 17 | Late-discovered wishes | Morphs, transitions and presenter mode requested late | Ship them from day one. See "Defaults". |
 | 18 | Adjacent-slide redundancy | Two neighbouring slides making the same point | Check each slide against its neighbours at the slide-jobs stage. |
 | 19 | Crammed slides | A test deck's first run came out crammed; the second had the right amount | Apply "One point per view" before designing, without being asked. |
+| 20 | Same look on every deck | Feedback that slides looked machine-made: the same palette and type whatever the subject | Run "Style discovery": ask, then show three directions on real content before the tiles. |
 
 ## Phase 0: kickoff (whole decks only)
 
@@ -57,7 +58,7 @@ Ask one batched round. Skip anything the source documents already answer. Never 
 3. **Time and length:** talk length, Q&A length, and any slide limit. No limit stated means none.
 4. **Script:** does one exist, and which document is the authority?
 5. **Medium:** HTML or PPTX, decided for this deck (see "Medium"). Must others edit it? Must it travel as a file?
-6. **Palette and brand:** a palette is chosen fresh per deck. Is there a brand to honour?
+6. **Brand:** is there a brand guide, colours or a logo to honour? The look itself is settled in "Style discovery", next.
 7. **Target impression** in one sentence, such as "an honest review that still feels impressive".
 8. **Wow budget:** how many big moments, and roughly where?
 9. **Existing deck?** If so, read it before asking anything about it.
@@ -118,6 +119,17 @@ Only a stated limit triggers a question. Otherwise separate without asking.
    - Cut content, with the user saying what goes.
 
 Never exceed a stated limit or cut content without an answer. A stated talk length counts as a limit too, if the added clicks and motion would make the talk run over. Time them with the speech pace in `references/motion.md`. Record the answer in the decisions log, and don't ask again unless the count changes.
+
+## Style discovery
+
+Whole decks only, after the slide jobs are accepted. Full method in `references/style-discovery.md`.
+
+1. Ask four questions in one batch: vibe, brand colour, headline type, light or dark. Each offers "Pick for me".
+2. Show three directions (closest, adjacent, wildcard) in `assets/starter/style-preview.html`, filled with the deck's real lines and numbers.
+3. The user picks or mixes. Copy that theme to `styles/themes/<deck>.css`, adapt it, run `build/contrast.py`, and link it in `index.html`.
+4. Record it in the brief, and offer once to save it as the user's style.
+
+Skip it for an existing deck, or when the preferences file holds a saved style the user confirms. With a strict brand guide, adapt directly and show one preview. Slides name roles (`--primary`, `--accent`), never hex, so the theme file is the only place colour and type live.
 
 ## Style tiles first
 
@@ -207,7 +219,7 @@ Full detail in `references/design-system.md`.
 - If the dominant element could be 40% bigger, it is too small. Diagrams take 60–70% of the stage where a diagram is the point.
 - "Plain" means flat: modest scale, white everywhere, thin strokes, no depth. Fix that, not the motion.
 - Light and dark are chosen on purpose, one meaning each. For example: dark = proof, light = story.
-- Few hues, chosen fresh per deck. Red only if a negative impression is intended.
+- Few hues, from the deck's theme file. Slides name roles, never hex. Red only if a negative impression is intended.
 - Text 4.5:1, chart strokes 3:1, hairlines never under 2px. Text must clear contrast with any glow removed.
 - One title in one place. Corner text must not resemble in-body captions.
 - One line-icon system. Never emoji. Tasks that differ get their own diagrams, not word lists.
@@ -282,6 +294,7 @@ One session by default. Only for a very large deck, or if the user asks, split i
 
 | File | Read when |
 |---|---|
+| `references/style-discovery.md` | Choosing a new deck's look: the questions, the five themes, the preview, brand colours, fonts |
 | `references/design-system.md` | Designing any slide: stage, type, colour method, chrome, charts, boldness |
 | `references/motion.md` | Choreographing anything: beats, registers, morphs, tiers, pacing, set pieces, Three.js |
 | `references/engine.md` | Starting an HTML deck or touching the engine, presenter, notes or build |
@@ -292,6 +305,7 @@ One session by default. Only for a very large deck, or if the user asks, split i
 | `references/script-story.md` | Only if the user wants help with story structure |
 | `references/pptx.md` | The deck is PPTX |
 | `assets/starter/` | Copy as the base of a new HTML deck |
+| `assets/starter/style-preview.html` | Showing three looks side by side during style discovery |
 | `assets/deck-brief-template.md` | Copy into the project at kickoff |
 | `assets/preferences-template.md` | The user wants their tastes to carry across decks |
 | `assets/examples/planet-3d.js` | A complete WebGL set piece to read before attempting one |

@@ -11,13 +11,23 @@ Source of truth for this deck. Keep it in the project and update it as you go. I
 - **Slide limit (none if not stated):**
 - **Script status and authority document:**
 - **Medium (HTML / PPTX) and why:**
-- **Palette and brand:**
+- **Brand (colours, logo, fonts, or none):**
 - **Target impression, one sentence:**
 - **Wow budget (how many, which slides):**
 - **Delivery (served folder + presenter / single file):**
 - **Light means:**
 - **Dark means:**
 - **Safety net (git / snapshots):**
+
+## Style
+
+Filled in after style discovery (`references/style-discovery.md`).
+
+- **Theme file:**
+- **Direction picked (closest / adjacent / wildcard / mix) and why:**
+- **Fonts and subset status:**
+- **Tokens changed from the bundled theme:**
+- **Accent's one job:**
 
 ## Facts ledger
 
@@ -29,8 +39,6 @@ Nothing goes on a slide unless it is here. Qualifiers travel with the figure.
 
 ## System decisions
 
-- **Tokens:**
-- **Fonts and subset status:**
 - **Chrome (corner label, spine, slide number):**
 - **Cinematic moments, named:**
 - **Forbidden (colours, words, punctuation):**

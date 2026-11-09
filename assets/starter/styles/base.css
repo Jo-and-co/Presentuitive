@@ -1,7 +1,8 @@
-/* STARTER NOTE (presentuitive): the colour VALUES and token NAMES below are an
-   example palette, kept so the file works out of the box. There is no fixed palette:
-   rewrite them from the deck's kickoff decision before building any slide, then
-   re-run build/contrast.py. Scene transition weight is set with data-tier="1|2|3"
+/* STARTER NOTE (presentuitive): this file holds no colours and no fonts. Those
+   live in one theme file (styles/themes/<name>.css), linked in index.html before
+   this one. Slides name roles (--primary, --accent, --ink-soft), never hues, so
+   changing the theme restyles the whole deck. After any palette change, re-run
+   build/contrast.py. Scene transition weight is set with data-tier="1|2|3"
    on the <section>; tier 1 is scarce on purpose. */
 /* ============================================================================
    Deck base
@@ -13,67 +14,22 @@
    ========================================================================= */
 
 /* --- fonts -----------------------------------------------------------------
-   Inter-dominant, one reserved serif (Newsreader), no mono.
-   Subset to 113 glyphs by build/fonts.py and embedded as woff2. No network
-   dependency: the deck renders identically on a machine with no internet.
-   src is rewritten to a data: URI by build.mjs for the single-file output.
-
-   Inter carries its opsz axis (14..32); font-optical-sizing:auto (below) picks
-   the display cut at large sizes and the text cut in body copy. */
-
-@font-face {
-  font-family: 'Inter';
-  src: url('../assets/inter.woff2') format('woff2');
-  font-weight: 300 700;              /* variable -- one file, all weights */
-  font-style: normal;
-  font-display: block;               /* block, not swap: no FOUT on stage */
-}
-/* Reserved serif. Used at the title, section markers and close ONLY -- ~3-4
-   appearances, so it reads as deliberate punctuation, not a competing voice.
-   Swappable: replace this one src to try a different serif. */
-@font-face {
-  font-family: 'Newsreader';
-  src: url('../assets/newsreader.woff2') format('woff2');
-  font-weight: 500 700;
-  font-style: normal;
-  font-display: block;
-}
+   Declared in the theme file, subset by build/fonts.py and bundled as woff2 in
+   assets/fonts/. No network dependency: the deck renders identically on a
+   machine with no internet. build.mjs rewrites each src to a data: URI for the
+   single-file output. */
 
 /* --- tokens ------------------------------------------------------------- */
 
 :root {
-  /* ink and ground */
-  --navy:      #002E69;   /* headlines, chart series 1 */
-  --navy-deep: #001B3D;   /* rare full-bleed panels */
-  --navy-mid:  #0B4A94;   /* chart series 2 */
-  --paper:     #FFFFFF;
-  --warm:      #F6F9FB;   /* alternate panel base */
-  --ink:       #0E1A2B;   /* body text */
-  /* projector pass: --soft #5A6B80 (4.0:1) washed out in a bright
-     room. Darkened toward slate #45566C (5.35:1) so secondary text and
-     annotations survive projection. Semantic role unchanged. */
-  --soft:      #45566C;   /* secondary text, annotations   5.35:1 */
-  --rule:      #DCE4EC;   /* hairlines -- never rendered under 2px */
-
-  /* accent.
-     Two skies, deliberately. A single --sky #5AC2E7 was the first choice,
-     but measured against white it is 2.04:1 -- below the 3:1
-     stroke floor, so a sky-coloured chart line would wash out on a projector.
-     --sky survives for fills and washes, where the rule does not bite;
-     --sky-deep (3.67:1) carries anything that has to be *seen* as a mark. */
-  --sky:       #5AC2E7;   /* fills, highlights, large shapes only */
-  --sky-deep:  #1B8FBF;   /* chart series 3, strokes, data marks */
-  --sky-wash:  #EAF7FC;   /* zone backgrounds */
-
-  /* The single accent. Same correction as sky: the first choice, #D4890E,
-     measured 2.87:1. */
-  --amber:     #C17D0A;   /* accent strokes and fills       3.38:1 */
-  --amber-ink: #9A5F07;   /* accent label *text*            5.23:1 */
-  /* the single accent, tuned for a DARK ground. On navy the
-     text-contrast --amber reads muddy; this luminous cut pops the one accent in
-     a bright room. Used only on dark scenes — base --amber is left untouched so
-     nothing on white shifts. */
-  --amber-on-dark: #E7A23A;
+  /* Colour and type tokens come from the theme file. The roles every theme
+     defines: --ground --ground-alt --wash --ink --ink-soft --rule --primary
+     --primary-mid --support (fill only) --support-deep --accent --accent-ink,
+     their dark-scene counterparts --dark-ground --dark-ink --dark-ink-soft
+     --dark-primary --dark-rule --accent-on-dark, the chrome colours, and
+     --font-display --font-body --font-label --font-special plus the display
+     knobs (--display-weight, --display-track, --display-stretch,
+     --display-case, --label-track). */
 
   /* motion -- see motion.css for the four registers */
   --ease-data:  cubic-bezier(.22, .61, .36, 1);
@@ -89,18 +45,6 @@
      than the eye reads as "one after another". */
   --stagger: 70ms;
   --icon-stroke: 1.75;
-
-  /* type -- one workhorse family, one reserved serif.
-     Newsreader is the serif. --font-special is the
-     single routing point for the ~4 serif moments. */
-  --font-sans:    'Inter', system-ui, sans-serif;
-  --font-serif:   'Newsreader', Georgia, 'Times New Roman', serif;
-  --font-special: var(--font-serif);
-
-  /* legacy aliases so existing rules keep resolving during the transition */
-  --display: var(--font-sans);
-  --body:    var(--font-sans);
-  --mono:    var(--font-sans);
 
   /* layout */
   --pad-x: 96px;
@@ -127,9 +71,9 @@
 html, body {
   height: 100%;
   overflow: hidden;
-  background: #0A1420;             /* letterbox surround */
-  font-family: var(--font-sans);
-  font-optical-sizing: auto;       /* Inter picks display vs text cut by size */
+  background: var(--letterbox);    /* letterbox surround */
+  font-family: var(--font-body);
+  font-optical-sizing: auto;       /* opsz fonts pick display vs text cut by size */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -149,12 +93,27 @@ html, body {
   top: 0;
   left: 0;
   transform-origin: 0 0;           /* fit() translates to centre from here */
-  background: var(--paper);
+  background: var(--ground);
   overflow: hidden;
 }
 
 .scene { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
 .scene.live { opacity: 1; pointer-events: auto; }
+
+/* Dark scenes remap the roles, so every class (.t-display-*, .t-stat, .primary,
+   .hr-primary, chart strokes) reads correctly on a dark ground with no
+   per-slide overrides. data-dark also flags the register for the engine and
+   the chrome. */
+[data-dark] {
+  --ground:     var(--dark-ground);
+  --ink:        var(--dark-ink);
+  --ink-soft:   var(--dark-ink-soft);
+  --primary:    var(--dark-primary);
+  --accent-ink: var(--accent-on-dark);
+  --rule:       var(--dark-rule);
+  background: var(--ground);
+  color: var(--ink);
+}
 
 /* --- scene-to-scene transitions () -----------------
    One arrival gesture shared across every slide, so the deck reads as one
@@ -266,65 +225,75 @@ html, body {
 }
 
 /* --- type scale ------------------------------------------------------------
-   ONE family, hierarchy by size + weight. Body floor 22px per the projector
-   rule. Strict rhythm: one size per role, one tracking per role. Only
-   .t-special uses the reserved serif; datelines/data, formerly mono, are now
-   tracked / tabular Inter. */
+   Hierarchy by size + weight. Body floor 22px per the projector rule. Strict
+   rhythm: one size per role, one tracking per role. The theme sets the
+   families and the display personality: --display-weight (m sits 100 below),
+   --display-track (a multiplier on the negative tracking: serifs want less),
+   --display-stretch and --display-case. */
 
+.t-display-xl, .t-display-l, .t-display-m, .t-stat {
+  font-family: var(--font-display);
+  font-stretch: var(--display-stretch, 100%);
+  text-transform: var(--display-case, none);
+}
 .t-display-xl {
-  font: 700 96px/.96 var(--font-sans);
-  letter-spacing: -.03em;
+  font-size: 96px; line-height: .96;
+  font-weight: var(--display-weight, 700);
+  letter-spacing: calc(-.03em * var(--display-track, 1));
   color: var(--ink);
 }
 .t-display-l {
-  font: 700 64px/1.02 var(--font-sans);
-  letter-spacing: -.022em;
+  font-size: 64px; line-height: 1.02;
+  font-weight: var(--display-weight, 700);
+  letter-spacing: calc(-.022em * var(--display-track, 1));
   color: var(--ink);
 }
 .t-display-m {
-  font: 600 44px/1.08 var(--font-sans);
-  letter-spacing: -.016em;
+  font-size: 44px; line-height: 1.08;
+  font-weight: calc(var(--display-weight, 700) - 100);
+  letter-spacing: calc(-.016em * var(--display-track, 1));
   color: var(--ink);
 }
 .t-lead {
-  font: 400 30px/1.40 var(--font-sans);
-  color: var(--soft);
+  font: 400 30px/1.40 var(--font-body);
+  color: var(--ink-soft);
   letter-spacing: -.006em;
 }
 .t-body {
-  font: 400 22px/1.50 var(--font-sans);
-  color: var(--soft);
+  font: 400 22px/1.50 var(--font-body);
+  color: var(--ink-soft);
 }
 .t-label {
-  font: 600 16px/1.20 var(--font-sans);
-  letter-spacing: .14em;            /* wider tracking replaces the mono texture */
+  font: 600 16px/1.20 var(--font-label);
+  letter-spacing: var(--label-track, .14em);
   text-transform: uppercase;
-  color: var(--soft);
+  color: var(--ink-soft);
 }
 .t-data {
-  font: 500 15px/1.10 var(--font-sans);
+  font: 500 15px/1.10 var(--font-label);
   letter-spacing: .01em;
-  color: var(--soft);
+  color: var(--ink-soft);
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
 }
 .t-stat {
-  font: 700 112px/1 var(--font-sans);
-  letter-spacing: -.04em;
-  color: var(--navy);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum' 1;
+  font-size: 112px; line-height: 1;
+  font-weight: var(--display-weight, 700);
+  letter-spacing: calc(-.04em * var(--display-track, 1));
+  color: var(--primary);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
 }
 
-/* the reserved serif -- title, section markers, close only (~3-4 places) */
+/* the reserved voice -- title, section markers, close only (~3-4 places) */
 .t-special { font-family: var(--font-special); font-optical-sizing: auto; }
 
 /* Colour modifiers -- kept separate so the scale stays about size alone. */
-.ink   { color: var(--ink); }
-.navy  { color: var(--navy); }
-.soft  { color: var(--soft); }
-.amber { color: var(--amber-ink); }
-.paper { color: var(--paper); }
+.ink      { color: var(--ink); }
+.primary  { color: var(--primary); }
+.ink-soft { color: var(--ink-soft); }
+.accent   { color: var(--accent-ink); }
+.ground   { color: var(--ground); }
 
 /* --- chrome ----------------------------------------------------------------
    The bottom rail is the deck's only persistent furniture. It carries the
@@ -346,19 +315,19 @@ html, body {
 }
 
 .rail-id {
-  font: 400 14px/1 var(--mono);
+  font: 400 14px/1 var(--font-label);
   letter-spacing: .07em;
-  color: var(--soft);
+  color: var(--ink-soft);
 }
 
-/* The mono dateline. The deck's quiet through-line -- it makes the
+/* The dateline. The deck's quiet through-line -- it makes the
    presentation read as a record of something that actually happened over
    24 weeks, at almost zero word cost. */
 .dateline {
-  font: 500 16px/1 var(--mono);
+  font: 500 16px/1 var(--font-label);
   letter-spacing: .13em;
   text-transform: uppercase;
-  color: var(--soft);
+  color: var(--ink-soft);
 }
 
 /* --- rules -----------------------------------------------------------------
@@ -369,7 +338,7 @@ html, body {
   background: var(--rule);
   border: 0;
 }
-.hr-navy { height: 3px; background: var(--navy); border: 0; }
+.hr-primary { height: 3px; background: var(--primary); border: 0; }
 
 /* --- icons -----------------------------------------------------------------
    ONE line-icon system for the whole deck. Geometric, single-weight
@@ -399,10 +368,10 @@ html, body {
   gap: 14px;
 }
 .spine-word {
-  font: 500 16px/1 var(--mono);
+  font: 500 16px/1 var(--font-label);
   letter-spacing: .13em;
   text-transform: uppercase;
-  color: var(--navy);
+  color: var(--primary);
   width: 118px;              /* fixed, so bars never shift when the word changes */
   flex: 0 0 118px;
 }
@@ -412,14 +381,14 @@ html, body {
   /* No transition on background: the change is discrete, at slide transitions
      only. A transition here would be the sliding fill invariant 4 forbids. */
 }
-.spine-seg.on { background: var(--navy); }
+.spine-seg.on { background: var(--primary); }
 
 /* Dark scenes (rare full-bleed panels) invert the spine so it stays legible. */
 .scene.on-dark ~ .rail .spine-seg,
-.rail.on-dark .spine-seg { background: rgba(255, 255, 255, .22); }
-.rail.on-dark .spine-seg.on { background: var(--amber-on-dark); }  /* luminous on dark */
-.rail.on-dark .spine-word { color: #fff; }
-.rail.on-dark .rail-id { color: #7C93AD; }
+.rail.on-dark .spine-seg { background: var(--dark-rule); }
+.rail.on-dark .spine-seg.on { background: var(--accent-on-dark); }  /* luminous on dark */
+.rail.on-dark .spine-word { color: var(--dark-ink); }
+.rail.on-dark .rail-id { color: var(--rail-id-on-dark); }
 
 /* --- act eyebrow (audience signpost) --------------------------
    A single quiet top-left marker naming the current act, aligned to the deck's
@@ -433,10 +402,10 @@ html, body {
   left: 40px;
   top: 40px;
   z-index: 55;
-  font: 600 13px/1 var(--font-sans);
+  font: 600 13px/1 var(--font-label);
   letter-spacing: .22em;
   text-transform: uppercase;
-  color: #93A0B2;
+  color: var(--eyebrow);
   opacity: 0;
   transition: opacity .4s var(--ease-data), color .4s var(--ease-data);
   pointer-events: none;
@@ -453,7 +422,7 @@ html, body {
   width: 32px; height: 2px;
   margin-right: 24px;
   vertical-align: middle;
-  background: var(--amber);
+  background: var(--accent);
 }
-#act-eyebrow.on-dark { color: #AEBCCB; }
-#act-eyebrow.on-dark::before { background: var(--amber-on-dark); }
+#act-eyebrow.on-dark { color: var(--eyebrow-on-dark); }
+#act-eyebrow.on-dark::before { background: var(--accent-on-dark); }

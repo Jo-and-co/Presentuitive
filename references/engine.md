@@ -20,7 +20,8 @@ Open `http://127.0.0.1:8123/`. Press `P` for the presenter window. `index.html` 
 |---|---|---|
 | `index.html` | Scenes and chrome. HTML comment at top holds the build stamp. | Yes |
 | `notes.txt` | Script for the presenter. User-editable. | Yes |
-| `styles/base.css` | Tokens, stage, scene transitions, tiers, type scale | Tokens yes, rest rarely |
+| `styles/themes/<id>.css` | Every colour and font, as role tokens. `index.html` links one. | Pick or adapt one per deck |
+| `styles/base.css` | Stage, scene transitions, tiers, type scale, the `data-dark` role swap | Rarely |
 | `styles/motion.css` | Four registers | Rarely |
 | `styles/slides.css` | Per-slide layout and morphs | Yes, most work goes here |
 | `js/engine.js` | Stage scaling, beats, nav, auto, count-up, hooks | Rarely. Treat as read-only once a deck is live. |
@@ -31,17 +32,17 @@ Open `http://127.0.0.1:8123/`. Press `P` for the presenter window. `index.html` 
 | `js/audit.js` | Checking script, injected in testing. Not linked from `index.html`. | No |
 | `js/vendor/three.*.min.js` | Three.js. Delete if unused. | No |
 | `build.mjs` | Inline to one file | No |
-| `build/contrast.py` | WCAG check of `TOKENS` + `PAIRS` | Yes, on a new palette |
+| `build/contrast.py` | WCAG check of every theme's role pairs | Run on any palette change |
 | `build/fonts.py` | Download and subset fonts | When glyphs or fonts change |
 
 ## Per-deck change list
 
-1. Tokens in `styles/base.css`. The names and values there are an example. Rename as you like, then update `TOKENS` and `PAIRS` in `build/contrast.py` and run it.
+1. Theme: point the `<link>` in `index.html` at the chosen theme file, or a copy adapted to the brand (`references/style-discovery.md`). Keep the role names; run `python build/contrast.py styles/themes/<id>.css`.
 2. Replace the demo scenes and the demo rules in `slides.css`. Keep the idioms.
 3. `ZONES`, `UNIT`, `TITLE_OF` in `js/spine.js`. If the deck grows, trim `UNIT` so the bars stay near 290px. For scale, 9 per slide fits 32 slides.
 4. Talk length in `tickClock` in `js/presenter.js`: `elapsed >= 9 * 60 && elapsed < 10 * 60` is the warning, `elapsed >= 10 * 60` is over.
-5. Dark background: `.scene[data-dark]` in `slides.css`. `data-dark` alone paints nothing.
-6. Fonts: `python build/fonts.py` if you change font or need other glyphs (needs fontTools). Subsets to ASCII plus nbsp, curly quotes, en and em dash, middle dot, bullet, four arrows, ellipsis, ×, true minus, ©®, ‹›. Anything else falls back silently.
+5. Dark scenes: `data-dark` swaps the roles to the theme's dark set, background included. No extra CSS.
+6. Fonts: `python build/fonts.py styles/themes/<id>.css` if you change font or need other glyphs (needs fontTools). Subsets to ASCII plus nbsp, curly quotes, en and em dash, middle dot, bullet, four arrows, ellipsis, ×, true minus, ©®, ‹›. Anything else falls back silently.
 7. Delete the Three.js vendor files if no 3D is used.
 8. Remove `#slide-no` before the real talk if numbers aren't wanted.
 

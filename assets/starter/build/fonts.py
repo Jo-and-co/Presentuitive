@@ -2,19 +2,42 @@
 """
 Font pipeline.
 
-Downloads the deck's fonts from Google Fonts as variable woff2, then subsets
-them to the exact glyph repertoire the deck uses and re-emits woff2.
+Reads the font recipe at the top of each theme file (styles/themes/*.css),
+downloads those families from Google Fonts as woff2, subsets them to the
+glyphs the deck uses, and writes them to assets/fonts/.
 
 Why this exists: a deck should render the same on a machine with no internet,
 at a sane file size. Linking Google Fonts fails the first test, and embedding
 the unsubsetted file once per weight fails the second.
 
-Output: assets/*.woff2 -- one file per family, all weights, subsetted.
+The bundled themes already ship their fonts, so you only need this when you
+change a theme's fonts or need glyphs outside CHARS (accents, other scripts).
+
+Run:
+    python build/fonts.py                       # every theme in styles/themes
+    python build/fonts.py styles/themes/my.css  # one theme
+
+Needs: pip install fonttools brotli
+
+Recipe format, inside a comment in the theme file:
+
+    /* @fonts
+       Inter      | Inter:opsz,wght@14..32,300..700
+       Newsreader | Newsreader:opsz,wght@72,500..700 | opsz=72
+    */
+
+Column 1 is the family name, column 2 the Google Fonts css2 query, column 3
+optional axis pins applied after download. Use only fonts under the SIL Open
+Font License with no Reserved Font Name (subsetting counts as modifying the
+font). When you ship a new family, add its OFL text to licenses/ and a row to
+THIRD_PARTY_NOTICES.md.
 """
 
+import io
 import json
 import pathlib
 import re
+import sys
 import urllib.request
 
 from fontTools import subset as subsetter_mod
@@ -22,8 +45,9 @@ from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
 
 HERE = pathlib.Path(__file__).resolve().parent
-ASSETS = HERE.parent / "assets"
-ASSETS.mkdir(exist_ok=True)
+ROOT = HERE.parent
+THEMES = ROOT / "styles" / "themes"
+OUT = ROOT / "assets" / "fonts"
 
 # A real browser UA, or the API serves ttf/eot legacy formats instead of woff2.
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -31,44 +55,40 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
 
 # --- glyph repertoire -------------------------------------------------------
 # ASCII printable covers every latin letter, digit and common mark. The named
-# extras are the typographic characters the deck actually uses: the mono
-# dateline separator, the before/after arrow, real quotes and dashes.
+# extras are the typographic characters decks commonly use. Anything else
+# falls back silently to a system font, so extend this for a new repertoire.
 CHARS = "".join(chr(c) for c in range(0x20, 0x7F)) + (
-    " "   # nbsp
-    "‘’“”"   # ' ' " "  curly quotes
-    "–—"               # en dash, em dash
-    "·•"               # middle dot (dateline sep), bullet
-    "→←↓↑"   # arrows -- 60 min -> 5 min
-    "…"                     # ellipsis
-    "×"                     # multiplication sign
-    "−"                     # true minus (not hyphen) for negative figures
-    "©®"               # (c) (r), cheap insurance
-    "‹›"               # single guillemets -- the map's org-path separator
+    " "                   # nbsp
+    "‘’“”" # curly quotes
+    "–—"             # en dash, em dash
+    "·•"             # middle dot, bullet
+    "→←↓↑" # arrows
+    "…"                   # ellipsis
+    "×"                   # multiplication sign
+    "−"                   # true minus for negative figures
+    "©®"             # (c) (r)
+    "‹›"             # single guillemets
+    "°£€¥" # degree, pound, euro, yen
 )
 
-FAMILIES = {
-    # name -> (css2 query, axis pins applied after download)
-    #
-    # Inter-dominant, with ONE reserved serif (Newsreader) for the title,
-    # section markers and close only. An earlier trio of three families read
-    # as messy.
-    #
-    # Inter carries an opsz axis (14..32): pinning nothing keeps it variable so
-    # `font-optical-sizing: auto` picks the display cut at large sizes and the
-    # text cut in body copy -- the single-family way to get display character
-    # without a second display face.
-    "Inter": (
-        "Inter:opsz,wght@14..32,300..700",
-        {},
-    ),
-    # Newsreader is the reserved serif: a warm, readable text-face serif (not a
-    # mannered display type), which suits the emotional lines without shouting.
-    # opsz pinned to its display end so the title reads crisp at 96px.
-    "Newsreader": (
-        "Newsreader:opsz,wght@72,500..700",
-        {"opsz": 72},
-    ),
-}
+
+def read_recipe(theme: pathlib.Path) -> list[tuple[str, str, dict]]:
+    text = theme.read_text(encoding="utf-8")
+    m = re.search(r"@fonts\s*\n(.*?)\*/", text, re.S)
+    if not m:
+        raise SystemExit(f"{theme.name}: no @fonts recipe found")
+    out = []
+    for line in m.group(1).splitlines():
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) < 2 or not parts[0]:
+            continue
+        pins = {}
+        if len(parts) > 2 and parts[2]:
+            for kv in parts[2].split(","):
+                k, v = kv.split("=")
+                pins[k.strip()] = float(v)
+        out.append((parts[0], parts[1].replace(" ", "+"), pins))
+    return out
 
 
 def fetch_css(query: str) -> str:
@@ -79,13 +99,9 @@ def fetch_css(query: str) -> str:
 
 
 def latin_faces(css: str) -> list[tuple[str, str]]:
-    """Google splits families into unicode-range blocks; we only want the plain
-    'latin' block -- latin-ext, cyrillic and greek are dead weight here.
-
-    Returns (font-weight, url) pairs. A variable family yields one pair whose
-    weight is a range like '300 700'; a static family yields one pair per cut,
-    which is why a static family comes back as several entries and Inter as one.
-    """
+    """Google splits families into unicode-range blocks; keep only the plain
+    'latin' block. Returns (font-weight, url) pairs: one for a variable family,
+    one per cut for a static family."""
     out = []
     for b in css.split("@font-face"):
         if "U+0000-00FF" not in b:      # the latin block's signature range
@@ -104,30 +120,27 @@ def download(url: str, dest: pathlib.Path) -> None:
 
 
 def subset(src: pathlib.Path, dest: pathlib.Path, pins: dict) -> None:
-    """Pin the unwanted variable axes, then cut to the glyph repertoire.
-
-    Order matters: instancing first means the subsetter only has to carry
-    deltas for the axes we actually kept (weight), not for opsz/SOFT/WONK.
-    """
+    """Pin unwanted variable axes, then cut to the glyph repertoire."""
     font = TTFont(src)
-
-    # Google already instances the axes it is asked to pin in the css2 query,
-    # so by the time a file reaches us the pinned axes may be gone and only
-    # wght survives. Pin defensively: intersect with what fvar actually
-    # still carries, and skip entirely for static cuts.
     if pins and "fvar" in font:
         live = {a.axisTag for a in font["fvar"].axes}
         todo = {k: v for k, v in pins.items() if k in live}
         if todo:
             font = instancer.instantiateVariableFont(font, todo, inplace=False,
                                                      updateFontNames=False)
+            # Round-trip through bytes: the instancer leaves lazily loaded
+            # tables the subsetter cannot read back reliably.
+            buf = io.BytesIO()
+            font.save(buf)
+            buf.seek(0)
+            font = TTFont(buf)
 
     opts = subsetter_mod.Options()
     opts.flavor = "woff2"
-    opts.layout_features = ["kern", "liga", "calt", "tnum", "ss01"]
+    opts.layout_features = ["kern", "liga", "calt", "tnum", "lnum", "pnum", "ss01"]
     opts.hinting = False
     opts.desubroutinize = True
-    opts.name_IDs = [1, 2, 3, 4, 6]
+    opts.name_IDs = [0, 1, 2, 3, 4, 6, 13, 14]   # keep copyright and licence
     opts.drop_tables += ["DSIG"]
     opts.recalc_bounds = True
 
@@ -140,40 +153,39 @@ def subset(src: pathlib.Path, dest: pathlib.Path, pins: dict) -> None:
 
 
 def main() -> None:
+    themes = [pathlib.Path(a).resolve() for a in sys.argv[1:]] or sorted(THEMES.glob("*.css"))
+    OUT.mkdir(parents=True, exist_ok=True)
     print(f"subsetting to {len(set(CHARS))} unique glyphs\n")
-    total = before_total = 0
-    manifest = []
 
-    for name, (query, pins) in FAMILIES.items():
-        faces = latin_faces(fetch_css(query))
-        if not faces:
-            raise SystemExit(f"no latin woff2 block found for {name}")
-
-        slug = name.lower().replace(" ", "-")
-        for weight, url in faces:
-            # A static family gives several cuts; tag the file with its weight
-            # so its files do not overwrite each other.
-            tag = slug if len(faces) == 1 else f"{slug}-{weight}"
-            raw = ASSETS / f"_raw-{tag}.woff2"
-            download(url, raw)
-            before = raw.stat().st_size
-
-            out = ASSETS / f"{tag}.woff2"
-            subset(raw, out, pins)
-            after = out.stat().st_size
-            raw.unlink()
-
-            total += after
-            before_total += before
-            manifest.append({"family": name, "weight": weight,
-                             "file": out.name, "bytes": after})
-            print(f"{name:16s} w{weight:<9s} {before/1024:6.1f}K ->"
-                  f" {after/1024:6.1f}K  ({100 - after * 100 // before}% off)")
+    done, manifest = set(), []
+    for theme in themes:
+        for name, query, pins in read_recipe(theme):
+            if query in done:
+                continue
+            done.add(query)
+            faces = latin_faces(fetch_css(query))
+            if not faces:
+                raise SystemExit(f"no latin woff2 block found for {name}")
+            slug = name.lower().replace(" ", "-")
+            for weight, url in faces:
+                tag = slug if len(faces) == 1 else f"{slug}-{weight}"
+                raw = OUT / f"_raw-{tag}.woff2"
+                download(url, raw)
+                before = raw.stat().st_size
+                out = OUT / f"{tag}.woff2"
+                subset(raw, out, pins)
+                raw.unlink()
+                after = out.stat().st_size
+                manifest.append({"family": name, "weight": weight,
+                                 "file": out.name, "bytes": after})
+                print(f"{name:16s} w{weight:<9s} {before/1024:6.1f}K -> {after/1024:6.1f}K")
+                print(f"  @font-face {{ font-family: '{name}'; "
+                      f"src: url('../../assets/fonts/{out.name}') format('woff2'); "
+                      f"font-weight: {weight}; font-display: block; }}")
 
     (HERE / "fonts.manifest.json").write_text(json.dumps(manifest, indent=2))
-
-    print(f"\n{before_total/1024:.1f}K downloaded -> {total/1024:.1f}K embedded")
-    print("Fonts are embedded, so the deck renders correctly with no internet.")
+    total = sum(m["bytes"] for m in manifest)
+    print(f"\n{total/1024:.1f}K embedded. The deck renders correctly with no internet.")
 
 
 if __name__ == "__main__":

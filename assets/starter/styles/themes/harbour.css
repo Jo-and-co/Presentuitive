@@ -1,0 +1,65 @@
+/* Harbour: calm, institutional, trustworthy.
+   Deep navy carries the argument, sky supports it, and one amber accent marks
+   the point. Inter does all the work. Newsreader appears only at the title,
+   the act breaks and the close. Suits finance, operations, the public sector
+   and reviews.
+
+   Every theme defines the same roles, so slides never name a hue: they say
+   --primary or --accent, and swapping this file restyles the whole deck.
+   After changing any colour, run build/contrast.py.
+
+   @fonts
+   Inter      | Inter:opsz,wght@14..32,300..700
+   Newsreader | Newsreader:opsz,wght@72,500..700 | opsz=72
+*/
+@font-face {
+  font-family: 'Inter';
+  src: url('../../assets/fonts/inter.woff2') format('woff2');
+  font-weight: 300 700; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: 'Newsreader';
+  src: url('../../assets/fonts/newsreader.woff2') format('woff2');
+  font-weight: 500 700; font-style: normal; font-display: block;
+}
+
+:root, .theme-harbour {
+  /* light scenes */
+  --ground:       #FFFFFF;   /* slide background */
+  --ground-alt:   #F6F9FB;   /* alternate panel */
+  --wash:         #EAF7FC;   /* zone fills */
+  --ink:          #0E1A2B;   /* headlines and body */
+  --ink-soft:     #45566C;   /* secondary text, annotations */
+  --rule:         #DCE4EC;   /* hairlines, never under 2px */
+  --primary:      #002E69;   /* the deck's colour: stats, series 1, key rules */
+  --primary-mid:  #0B4A94;   /* series 2 */
+  --support:      #5AC2E7;   /* FILL ONLY: large shapes, highlights */
+  --support-deep: #1B8FBF;   /* series 3, strokes */
+  --accent:       #C17D0A;   /* the one accent: marks and strokes */
+  --accent-ink:   #9A5F07;   /* the accent as text */
+
+  /* dark scenes (data-dark) */
+  --dark-ground:    #001B3D;
+  --dark-ink:       #F4F8FC;
+  --dark-ink-soft:  #AEBCCB;
+  --dark-primary:   #5AC2E7;
+  --dark-rule:      rgba(255, 255, 255, .22);
+  --accent-on-dark: #E7A23A;
+
+  /* chrome */
+  --letterbox:        #0A1420;
+  --eyebrow:          #93A0B2;
+  --eyebrow-on-dark:  #AEBCCB;
+  --rail-id-on-dark:  #7C93AD;
+
+  /* type */
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-label:   'Inter', system-ui, sans-serif;
+  --font-special: 'Newsreader', Georgia, serif;
+  --display-weight:  700;    /* xl and l; m and stat derive from it */
+  --display-track:   1;      /* multiplies the scale's negative tracking */
+  --display-stretch: 100%;
+  --display-case:    none;
+  --label-track:     .14em;
+}

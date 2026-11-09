@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Style preview</title>
+<!--
+  STYLE PREVIEW (presentuitive): shown to the user during style discovery,
+  before any real slide is built. See references/style-discovery.md.
+
+  How to use it:
+  1. Put the user's real content in CONTENT below: their actual title, one real
+     sentence, one real number. Never ship the placeholder lines to the user:
+     a look can only be judged on the words it will carry.
+  2. Keep three entries in DIRECTIONS: the closest match to their answers, an
+     adjacent option, and one wildcard. Order them that way. Delete the rest.
+  3. If a theme was adapted (brand colours), point its entry at the adapted file
+     and add a <link> for it below.
+  4. Open this file directly in a browser. Click a slide to enlarge it, Esc to
+     close.
+-->
+<link rel="stylesheet" href="styles/themes/harbour.css">
+<link rel="stylesheet" href="styles/themes/broadsheet.css">
+<link rel="stylesheet" href="styles/themes/workshop.css">
+<link rel="stylesheet" href="styles/themes/poster.css">
+<link rel="stylesheet" href="styles/themes/hearth.css">
+<link rel="stylesheet" href="styles/base.css">
+<style>
+  /* Page chrome: neutral, so it never flatters one theme over another. */
+  html, body {
+    height: auto; overflow: auto;
+    background: #E9E9E7; color: #1D1D1B;
+    font: 400 15px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  .pv-page { max-width: 1480px; margin: 0 auto; padding: 40px 32px 72px; }
+  .pv-page > header h1 { font-size: 22px; font-weight: 600; }
+  .pv-page > header p { color: #5A5A56; max-width: 70ch; margin-top: 6px; }
+
+  .pv-dir { margin-top: 44px; }
+  .pv-dir-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .pv-dir-head h2 { font-size: 18px; font-weight: 650; }
+  .pv-tag {
+    font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px; background: #1D1D1B; color: #fff;
+  }
+  .pv-why { color: #5A5A56; flex-basis: 100%; }
+  .pv-meta { display: flex; gap: 18px; align-items: center; flex-wrap: wrap;
+             margin-top: 10px; color: #5A5A56; font-size: 13px; }
+  .pv-swatches { display: flex; gap: 4px; }
+  .pv-swatches span { width: 22px; height: 22px; border-radius: 4px;
+                      box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+
+  .pv-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+  @media (max-width: 900px) { .pv-pair { grid-template-columns: 1fr; } }
+
+  .pv-card {
+    position: relative; aspect-ratio: 16 / 9; overflow: hidden;
+    border-radius: 6px; cursor: zoom-in; background: var(--ground);
+    box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 6px 20px rgba(0,0,0,.08);
+  }
+  .pv-card:focus-visible { outline: 3px solid #1D1D1B; outline-offset: 3px; }
+  .pv-stage {
+    position: absolute; left: 0; top: 0; width: 1600px; height: 900px;
+    transform-origin: 0 0; transform: scale(var(--s, .4));
+    background: var(--ground); overflow: hidden;
+  }
+
+  .pv-zoom {
+    position: fixed; inset: 0; z-index: 10; display: none;
+    background: rgba(10, 10, 10, .88); cursor: zoom-out;
+  }
+  .pv-zoom.open { display: block; }
+  .pv-zoom .pv-stage { box-shadow: 0 10px 60px rgba(0,0,0,.5); }
+
+  /* --- the two sample slides: names roles only, so every theme restyles them */
+  .pv-light .pad { display: grid; grid-template-columns: 1fr 470px; gap: 80px; align-items: center; }
+  .pv-light .copy { display: flex; flex-direction: column; gap: 30px; }
+  .pv-light .hr-primary { width: 96px; }
+  .pv-bars { display: flex; flex-direction: column; gap: 22px; }
+  .pv-bar { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .pv-bar i { display: block; height: 44px; border-radius: 2px; background: var(--support); }
+  .pv-bar.mid i { background: var(--primary-mid); }
+  .pv-bar.hit i { background: var(--accent); }
+  .pv-bar.hit .t-data { color: var(--accent-ink); font-weight: 600; }
+
+  .pv-dark .pad { display: grid; grid-template-columns: 600px 1fr; gap: 56px; align-items: end; }
+  .pv-dark .figure { display: flex; flex-direction: column; gap: 18px; padding-bottom: 24px; }
+  .pv-dark .t-stat { font-size: 136px; white-space: nowrap; }
+  .pv-dark svg { width: 100%; height: 520px; overflow: visible; }
+  .pv-dark .grid line { stroke: var(--rule); stroke-width: 1.5; }
+  .pv-dark .base { fill: none; stroke: var(--primary); stroke-width: 4; stroke-dasharray: 2 12; stroke-linecap: round; }
+  .pv-dark .main { fill: none; stroke: var(--accent-on-dark); stroke-width: 7; stroke-linecap: round; }
+  .pv-dark .dot  { fill: var(--accent-on-dark); }
+  .pv-dark .end-label { font: 600 22px var(--font-label); fill: var(--ink); }
+  .pv-top { position: absolute; left: var(--pad-x); top: 52px; }
+</style>
+</head>
+<body>
+<main class="pv-page">
+  <header>
+    <h1>Three directions for your deck</h1>
+    <p>Each row is one look, shown on a light slide and a dark data slide with your own content. Pick one, or mix: "the type from the first, the colours from the third" is a fine answer. Click a slide to see it full size.</p>
+  </header>
+  <div id="pv-rows"></div>
+</main>
+<div class="pv-zoom" id="pv-zoom" role="dialog" aria-modal="true" aria-label="Enlarged slide"></div>
+
+<template id="pv-slides">
+  <div class="pv-card" tabindex="0" role="button" aria-label="Enlarge light slide">
+    <section class="pv-stage scene live pv-light">
+      <div class="dateline pv-top" data-f="eyebrow"></div>
+      <div class="pad">
+        <div class="copy">
+          <h2 class="t-display-xl" data-f="title"></h2>
+          <hr class="hr-primary">
+          <p class="t-lead" data-f="lead"></p>
+        </div>
+        <div class="pv-bars" data-f="bars"></div>
+      </div>
+    </section>
+  </div>
+  <div class="pv-card" tabindex="0" role="button" aria-label="Enlarge dark slide">
+    <section class="pv-stage scene live pv-dark" data-dark>
+      <div class="t-label pv-top" data-f="statLabel"></div>
+      <div class="pad">
+        <div class="figure">
+          <div class="t-stat" data-f="stat"></div>
+          <p class="t-body" data-f="statNote"></p>
+        </div>
+        <svg viewBox="0 0 800 520" aria-hidden="true">
+          <g class="grid"><line x1="0" y1="130" x2="800" y2="130"/><line x1="0" y1="260" x2="800" y2="260"/><line x1="0" y1="390" x2="800" y2="390"/></g>
+          <path class="base" d="M0,400 L800,360"/>
+          <path class="main" d="M0,440 C180,430 260,330 420,300 S660,140 800,90"/>
+          <circle class="dot" cx="800" cy="90" r="11"/>
+          <text class="end-label" x="790" y="60" text-anchor="end" data-f="lineLabel"></text>
+        </svg>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script>
+/* ---- EDIT THIS: the user's real content ---------------------------------- */
+const CONTENT = {
+  eyebrow:   'PLACEHOLDER · SECTION NAME',
+  title:     'Replace with the deck’s real headline',          // a real line from the brief
+  lead:      'Replace with one real sentence the talk will say.',
+  bars: [                                                       // a real comparison, if the deck has one
+    { label: 'Option A', value: 38 },
+    { label: 'Option B', value: 54, mid: true },
+    { label: 'Option C', value: 91, hit: true },
+  ],
+  statLabel: 'PLACEHOLDER · WHAT THE NUMBER MEASURES',
+  stat:      '120 min',
+  statNote:  'Replace with what the number means for this audience.',
+  lineLabel: 'Real series label',
+};
+
+/* ---- EDIT THIS: three directions, closest first --------------------------- */
+const DIRECTIONS = [
+  { theme: 'harbour',    tag: 'Closest',  name: 'Harbour',    why: 'Calm, institutional, precise.' },
+  { theme: 'broadsheet', tag: 'Adjacent', name: 'Broadsheet', why: 'Editorial and literate: a serif voice with one red mark.' },
+  { theme: 'workshop',   tag: 'Wildcard', name: 'Workshop',   why: 'Technical and hands-on: condensed sans with mono labels.' },
+  // Also bundled: poster (loud, condensed capitals), hearth (warm, human).
+];
+
+/* ---- render (no edits needed below) -------------------------------------- */
+const rows = document.getElementById('pv-rows');
+const tpl = document.getElementById('pv-slides');
+const max = Math.max(...CONTENT.bars.map(b => b.value));
+
+function fill(root) {
+  root.querySelectorAll('[data-f]').forEach(el => {
+    const k = el.dataset.f;
+    if (k === 'bars') {
+      el.innerHTML = CONTENT.bars.map(b =>
+        `<div class="pv-bar${b.hit ? ' hit' : ''}${b.mid ? ' mid' : ''}">
+           <span class="t-data">${b.label} · ${b.value}</span>
+           <i style="width:${(b.value / max * 100).toFixed(1)}%"></i>
+         </div>`).join('');
+    } else el.textContent = CONTENT[k] ?? '';
+  });
+}
+
+const SWATCH = ['--ground', '--ink', '--primary', '--support', '--accent', '--dark-ground'];
+
+DIRECTIONS.forEach(d => {
+  const sec = document.createElement('section');
+  sec.className = `pv-dir theme-${d.theme}`;
+  sec.innerHTML = `
+    <div class="pv-dir-head"><span class="pv-tag">${d.tag}</span><h2>${d.name}</h2><p class="pv-why">${d.why}</p></div>
+    <div class="pv-pair"></div>
+    <div class="pv-meta"><div class="pv-swatches"></div><span class="pv-fonts"></span></div>`;
+  const pair = sec.querySelector('.pv-pair');
+  pair.append(tpl.content.cloneNode(true));
+  fill(pair);
+  rows.append(sec);
+
+  const cs = getComputedStyle(sec);
+  sec.querySelector('.pv-swatches').innerHTML = SWATCH
+    .map(t => `<span title="${t}" style="background:var(${t})"></span>`).join('');
+  const fam = t => cs.getPropertyValue(t).split(',')[0].replace(/['"]/g, '').trim();
+  const disp = fam('--font-display'), body = fam('--font-body');
+  sec.querySelector('.pv-fonts').textContent =
+    disp === body ? disp : `${disp} headlines, ${body} text`;
+});
+
+/* scale each 1600x900 stage to its card */
+function fit() {
+  document.querySelectorAll('.pv-card').forEach(c =>
+    c.querySelector('.pv-stage').style.setProperty('--s', c.clientWidth / 1600));
+}
+new ResizeObserver(fit).observe(rows);
+
+/* click to enlarge, Esc or click to close */
+const zoom = document.getElementById('pv-zoom');
+let lastCard = null;
+function open(card) {
+  lastCard = card;
+  const stage = card.querySelector('.pv-stage').cloneNode(true);
+  const theme = [...card.closest('.pv-dir').classList].find(c => c.startsWith('theme-'));
+  zoom.className = `pv-zoom open ${theme}`;
+  zoom.replaceChildren(stage);
+  const s = Math.min(innerWidth * .94 / 1600, innerHeight * .94 / 900);
+  stage.style.setProperty('--s', s);
+  stage.style.left = `${(innerWidth - 1600 * s) / 2}px`;
+  stage.style.top = `${(innerHeight - 900 * s) / 2}px`;
+  zoom.focus();
+}
+function close() { zoom.className = 'pv-zoom'; zoom.replaceChildren(); lastCard?.focus(); }
+rows.addEventListener('click', e => { const c = e.target.closest('.pv-card'); if (c) open(c); });
+rows.addEventListener('keydown', e => {
+  const c = e.target.closest('.pv-card');
+  if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(c); }
+});
+zoom.tabIndex = -1;
+zoom.addEventListener('click', close);
+addEventListener('keydown', e => { if (e.key === 'Escape' && zoom.classList.contains('open')) close(); });
+</script>
+</body>
+</html>

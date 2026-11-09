@@ -54,33 +54,35 @@ Words and lines:
 
 Default rule: every deck uses both, on purpose, one meaning each. The meanings change per deck; they never mix within one. The source deck used dark = proof and measurement, light = story and structure. Write them in the brief.
 
-`data-dark` only flags the scene. Paint the background in `slides.css`.
+`data-dark` on a scene swaps the colour roles to the theme's dark set (`base.css`), so the background and text follow without extra CSS.
 
 Dark scenes: projector gamma can crush them, so keep body text well above the floor. Glow is grammar for data, never the legibility mechanism. Text must clear contrast with glow removed.
 
 ## 5. Colour method
 
-**No fixed palette.** Choose fresh per deck, with the user, on the style tiles. Then:
+**No fixed palette.** Every colour lives in one theme file (`styles/themes/<id>.css`), chosen with the user in style discovery (`references/style-discovery.md`). Then:
 
-1. Keep it to few hues. The source deck used two families, navy and amber, plus a sky tint. Too many colours is what makes a deck look machine-made.
-2. Give each accent one job, and say so.
-3. Write tokens in `base.css`, check them with `build/contrast.py` (update `TOKENS` and `PAIRS`).
-4. Scan computed colours with the audit (`hueFamilies`). Design skills will drift; the scan catches it.
+1. Keep it to few hues. Too many colours is what makes a deck look machine-made.
+2. Give each accent one job, and say so in the brief.
+3. Slides and `slides.css` name roles, never hex. A new colour need is a new role in the theme file, not a one-off value.
+4. Check the theme with `python build/contrast.py styles/themes/<id>.css`.
+5. Scan computed colours with the audit (`hueFamilies`). Design skills will drift; the scan catches it.
 
 The source deck chose no green and no red, since red gives a negative impression. Ask rather than assume for other decks.
 
-The starter's tokens, as an example of shape only:
+The roles every theme defines:
 
-```css
---navy:#002E69; --navy-deep:#001B3D; --navy-mid:#0B4A94;
---paper:#FFF; --warm:#F6F9FB; --ink:#0E1A2B; --soft:#45566C; --rule:#DCE4EC;
---amber:#C17D0A; --amber-ink:#9A5F07; --amber-on-dark:#E7A23A;
---sky:#5AC2E7; --sky-deep:#1B8FBF;
-/* dark scenes */
---tx:#F4F8FC; --tmut:#A9BFD8; --tdim:#8598B6; --tsky:#5AC2E7; --tsky2:#8BD6F0; --tamb:#F0B24A; --tamb2:#F5C56E;
-```
+| Role | Job |
+|---|---|
+| `--ground`, `--ground-alt`, `--wash` | Slide background, alternate panel, faint tint |
+| `--ink`, `--ink-soft`, `--rule` | Text, secondary text, hairlines |
+| `--primary`, `--primary-mid` | Main brand colour (text-safe), a lighter step for fills |
+| `--support`, `--support-deep` | Second hue. `--support` is **fills only**; `--support-deep` is text-safe |
+| `--accent`, `--accent-ink` | The one highlight. `--accent-ink` is its text-safe shade |
+| `--dark-*`, `--accent-on-dark` | What the roles become under `data-dark` |
+| `--letterbox`, `--eyebrow*`, `--rail-id-on-dark` | Chrome |
 
-Note how accents split into text-safe and fill-only: `--sky` is 2.04:1 on white so it is fills only; `--amber` is 3.38:1 and `--amber-ink` 5.23:1 for text.
+The split between fill-only and text-safe matters: bright hues rarely reach 4.5:1 on a light ground, so they fill bars and areas while a deeper shade carries any words.
 
 ## 6. Type
 
@@ -95,8 +97,12 @@ Note how accents split into text-safe and fill-only: `--sky` is 2.04:1 on white 
 | `.t-data` | 500 15px tabular |
 | `.t-stat` | 700 112px/1, -.04em tabular |
 
-- One dominant sans plus one reserved serif for human or reflective lines. A trio of three families was rejected as messy, and Inter with Newsreader replaced it. Fonts may change per deck; the discipline stays.
-- Fonts embedded as woff2 with `font-display: block`.
+The sizes are fixed; the theme sets the faces and the display knobs. Weights and tracking above are harbour's.
+
+- Faces come from the theme's `--font-display`, `--font-body`, `--font-label` and `--font-special` (the reserved voice for human or reflective lines).
+- Knobs: `--display-weight`, `--display-track` (a multiplier on the negative tracking; serifs want less), `--display-stretch`, `--display-case`, `--label-track`. Tune these rather than overriding classes.
+- At most two families plus a reserved voice. A trio of three display families was rejected as messy in the source deck. Faces change per deck; the discipline stays.
+- Fonts embedded as woff2 with `font-display: block`, in `assets/fonts/`.
 - **The bundled fonts are subset.** `build/fonts.py` keeps ASCII and a short list of punctuation. Other glyphs fall back silently. Re-run it for a new repertoire.
 - A good default: no em or en dashes in visible text, curly apostrophes and quotes (`&#8217;`, `&#8220;`, `&#8221;`). The audit's `DASH` check enforces the first. Drop it if a deck wants dashes.
 - Body floor 22px. The audit flags text under 15px as advice.
@@ -113,7 +119,7 @@ Decide on the style tiles. Late chrome changes touch every slide.
 ## 8. Projector floors
 
 - Text 4.5:1. Chart strokes 3:1. Hairlines at least 2px. Body at least 22px.
-- Assume a washed-out projector. On the starter's dark field (#001B3D): white 16:1, muted 9.1:1, dim 5.3–5.9:1, sky 8.4:1, amber 9.1:1.
+- Assume a washed-out projector. `build/contrast.py` checks every theme's text roles on both grounds; keep dark-scene body text well above the floor, not at it.
 - Overscan is handled by the `-`/`=` zoom nudge, so don't reserve margin for it.
 - Deliberate dimming of past content is allowed (`[data-b].dim{opacity:.26}`). The audit will flag dim text that still needs reading; decide per case.
 

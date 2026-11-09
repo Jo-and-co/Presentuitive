@@ -14,6 +14,15 @@ Optional. Copy this file to `~/.claude/presentuitive-preferences.md` and fill in
 - **Punctuation rules (for example, dashes allowed or not):**
 - **How much motion I want:**
 
+## Saved style
+
+Filled in by the skill when you ask it to remember a look. The next deck starts from it.
+
+- **Theme file (or bundled theme):**
+- **Tokens changed:**
+- **Fonts:**
+- **Use it for (all decks, or which kind):**
+
 ## How I like to work
 
 - **Reply length:**

@@ -1,65 +1,70 @@
 #!/usr/bin/env python
 """
-Phase 1 · contrast validator.
+Contrast validator.
 
 Two projector rules are hard invariants:
-    minimum contrast 4.5:1 for text, 3:1 for chart strokes
+    minimum contrast 4.5:1 for text, 3:1 for chart strokes and data marks
 
-"Projector-safe" is only worth anything if it is checked. This computes the
-real WCAG ratio for every foreground/background pair the deck actually uses
-and fails loudly on any that falls short.
+"Projector-safe" is only worth anything if it is checked. This reads the
+colour tokens straight out of a theme file, computes the real WCAG ratio for
+every pair the deck's roles produce, and fails loudly on any that fall short.
 
-Run: python build/contrast.py
+Run:
+    python build/contrast.py                          # every theme in styles/themes
+    python build/contrast.py styles/themes/my.css     # one theme
+
+Run it after every palette change: a new theme, brand colours dropped into a
+stock theme, or a single token nudged. Tokens it reports as FILL-ONLY may be
+used for large shapes, washes and highlights, never for text or thin lines.
 """
 
+import pathlib
+import re
 import sys
 
-TOKENS = {
-    "navy":      "#002E69",
-    "navy-deep": "#001B3D",
-    "navy-mid":  "#0B4A94",
-    "sky":       "#5AC2E7",
-    "sky-deep":  "#1B8FBF",
-    "sky-wash":  "#EAF7FC",
-    "amber":     "#C17D0A",
-    "amber-ink": "#9A5F07",
-    "paper":     "#FFFFFF",
-    "warm":      "#F6F9FB",
-    "ink":       "#0E1A2B",
-    "soft":      "#45566C",
-    "rule":      "#DCE4EC",
-}
+HERE = pathlib.Path(__file__).resolve().parent
+THEMES = HERE.parent / "styles" / "themes"
 
 # (foreground, background, role, required ratio)
 PAIRS = [
-    # --- body and display text: 4.5:1 ---
-    ("ink",       "paper",     "body text",              4.5),
-    ("ink",       "warm",      "body text on panel",     4.5),
-    ("ink",       "sky-wash",  "body text on zone fill", 4.5),
-    ("navy",      "paper",     "headlines",              4.5),
-    ("navy",      "warm",      "headlines on panel",     4.5),
-    ("navy",      "sky-wash",  "headlines on zone fill", 4.5),
-    ("soft",      "paper",     "secondary text",         4.5),
-    ("soft",      "warm",      "secondary on panel",     4.5),
-    ("amber-ink", "paper",     "accent label text",  4.5),
-    ("paper",     "navy",      "reversed text",          4.5),
-    ("paper",     "navy-deep", "reversed text (deep)",   4.5),
-    ("sky",       "navy-deep", "accent on dark panel",   4.5),
+    # --- text on light scenes: 4.5:1 ---
+    ("ink",            "ground",      "body text",                 4.5),
+    ("ink",            "ground-alt",  "body text on panel",        4.5),
+    ("ink",            "wash",        "body text on zone fill",    4.5),
+    ("primary",        "ground",      "primary-coloured text",     4.5),
+    ("primary",        "ground-alt",  "primary text on panel",     4.5),
+    ("primary",        "wash",        "primary text on zone fill", 4.5),
+    ("ink-soft",       "ground",      "secondary text",            4.5),
+    ("ink-soft",       "ground-alt",  "secondary text on panel",   4.5),
+    ("accent-ink",     "ground",      "accent label text",         4.5),
+    ("ground",         "primary",     "reversed text",             4.5),
 
-    # --- chart strokes and data marks: 3:1 ---
-    ("navy",      "paper",     "chart series 1",         3.0),
-    ("navy-mid",  "paper",     "chart series 2",         3.0),
-    ("sky-deep",  "paper",     "chart series 3",         3.0),
-    ("amber",     "paper",     "accent series",      3.0),
-    ("soft",      "paper",     "axis / tick labels",     3.0),
+    # --- text on dark scenes: 4.5:1 ---
+    ("dark-ink",       "dark-ground", "text on dark",              4.5),
+    ("dark-ink-soft",  "dark-ground", "secondary text on dark",    4.5),
+    ("dark-primary",   "dark-ground", "primary text on dark",      4.5),
+    ("accent-on-dark", "dark-ground", "accent text on dark",       4.5),
 
-    # --- known-bad pairs the deck must never produce ---
-    # kept here as regression guards, expected to FAIL if ever used as text
-    ("sky",       "paper",     "GUARD: sky as stroke",   3.0),
-    ("soft",      "sky-wash",  "GUARD: soft on wash",    4.5),
+    # --- strokes and data marks: 3:1 ---
+    ("primary",        "ground",      "chart series 1",            3.0),
+    ("primary-mid",    "ground",      "chart series 2",            3.0),
+    ("support-deep",   "ground",      "chart series 3",            3.0),
+    ("accent",         "ground",      "accent series / marks",     3.0),
+    ("ink-soft",       "ground",      "axis and tick labels",      3.0),
+    ("dark-primary",   "dark-ground", "series 1 on dark",          3.0),
+    ("accent-on-dark", "dark-ground", "accent series on dark",     3.0),
+    ("support",        "dark-ground", "series 3 on dark",          3.0),
 ]
 
-GUARD = "GUARD:"
+# Colours that only ever fill. Reported with their ratio so nobody promotes
+# one to text or a thin line by accident.
+FILL_ONLY = ["support", "wash", "ground-alt", "rule"]
+
+
+def read_tokens(theme: pathlib.Path) -> dict:
+    text = theme.read_text(encoding="utf-8")
+    return {m.group(1): m.group(2)
+            for m in re.finditer(r"--([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\b", text)}
 
 
 def lum(hex_color: str) -> float:
@@ -72,45 +77,46 @@ def lum(hex_color: str) -> float:
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 
-def ratio(fg: str, bg: str) -> float:
-    a, b = lum(TOKENS[fg]), lum(TOKENS[bg])
-    hi, lo = max(a, b), min(a, b)
+def ratio(a: str, b: str) -> float:
+    la, lb = lum(a), lum(b)
+    hi, lo = max(la, lb), min(la, lb)
     return (hi + 0.05) / (lo + 0.05)
 
 
-def main() -> int:
+def check(theme: pathlib.Path) -> int:
+    tokens = read_tokens(theme)
+    print(f"\n== {theme.name}")
     failures = []
-    print(f"{'foreground':11s} {'background':11s} {'role':26s} "
-          f"{'ratio':>7s}  {'need':>5s}")
-    print("-" * 68)
-
     for fg, bg, role, need in PAIRS:
-        r = ratio(fg, bg)
-        is_guard = role.startswith(GUARD)
+        if fg not in tokens or bg not in tokens:
+            missing = fg if fg not in tokens else bg
+            print(f"  MISSING --{missing}  ({role})")
+            failures.append(role)
+            continue
+        r = ratio(tokens[fg], tokens[bg])
         ok = r >= need
+        if not ok:
+            failures.append(role)
+        print(f"  {fg:15s} on {bg:12s} {role:27s} {r:5.2f}:1 / {need:.1f}  "
+              f"{'ok' if ok else 'FAIL'}")
 
-        if is_guard:
-            # Guards document pairs we expect to fail; a guard that PASSES
-            # is not an error, it just means the token got darker.
-            mark = "guard" if not ok else "guard*"
-        elif ok:
-            mark = "ok"
-        else:
-            mark = "FAIL"
-            failures.append((fg, bg, role, r, need))
-
-        print(f"{fg:11s} {bg:11s} {role:26s} {r:6.2f}:1 {need:5.1f}  {mark}")
-
-    print()
+    fills = [f"--{t} {ratio(tokens[t], tokens['ground']):.2f}:1"
+             for t in FILL_ONLY if t in tokens and 'ground' in tokens]
+    print(f"  fill-only (vs ground): {', '.join(fills)}")
     if failures:
-        print(f"{len(failures)} pair(s) below the projector floor:\n")
-        for fg, bg, role, r, need in failures:
-            print(f"  {role}: {fg} on {bg} is {r:.2f}:1, needs {need}:1")
-        return 1
+        print(f"  {len(failures)} pair(s) below the projector floor")
+    return len(failures)
 
-    print("all live pairs clear the projector floor.")
-    print("guards confirm --sky and --soft/--sky-wash remain unusable as ink.")
-    return 0
+
+def main() -> int:
+    themes = [pathlib.Path(a) for a in sys.argv[1:]] or sorted(THEMES.glob("*.css"))
+    if not themes:
+        print("no theme files found")
+        return 1
+    bad = sum(check(t) for t in themes)
+    print("\nall pairs clear the projector floor." if not bad
+          else f"\n{bad} failing pair(s). Darken the foreground or lighten the ground, then rerun.")
+    return 1 if bad else 0
 
 
 if __name__ == "__main__":
