@@ -287,7 +287,7 @@ All optional. This skill works without them, and sets direction when they are pr
 | `frontend-slides` | Single-file HTML deck patterns. Consider it when starting fresh. | Use `assets/starter/`. |
 | `humanizer` | A second pass on long scripts. The voice sample still wins. | Use `references/wording.md`. |
 | A PPTX skill | The PPTX route. | pptxgenjs directly. |
-| `dataviz` | Chart forms and colour checks, within the deck's palette. | Use section 9 of `references/design-system.md`. |
+| `dataviz` | Chart forms and colour checks, within the deck's palette. | Use `references/dataviz.md`. |
 
 ## Workflow shape
 

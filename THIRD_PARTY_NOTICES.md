@@ -29,3 +29,22 @@ Sources:
 - Literata: https://github.com/googlefonts/literata
 - Newsreader: https://github.com/productiontype/Newsreader
 - Three.js: https://github.com/mrdoob/three.js
+
+## Adapted guidance
+
+Some of the written guidance adapts ideas from these MIT-licensed skills. No code from them is included. The examples and wording in this project are new.
+
+| Source | What it informed | Licence | Full text |
+|---|---|---|---|
+| [humanizer](https://github.com/blader/humanizer), Siqi Chen | The list of wording tells and the rewrite loop in `references/wording.md` | MIT | `licenses/MIT-humanizer.txt` |
+| [frontend-slides](https://github.com/zarazhangrui/frontend-slides), Zara Zhang | Style discovery by showing previews instead of asking for design vocabulary (`references/style-discovery.md`, `assets/starter/style-preview.html`) | MIT | `licenses/MIT-frontend-slides.txt` |
+| [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), Next Level Builder | Matching a style to its audience, and anti-patterns such as emoji icons (`references/style-discovery.md`, `references/anti-slop.md`) | MIT | `licenses/MIT-ui-ux-pro-max.txt` |
+
+`humanizer` is itself based on Wikipedia's [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) page. No text from that page is copied here.
+
+## Acknowledgements
+
+These shaped the thinking but nothing from them is copied or adapted: no text, code or examples.
+
+- [impeccable](https://github.com/pbakaus/impeccable), Paul Bakaus (Apache 2.0): the idea of naming "AI slop" tells in design.
+- The `dataviz` skill: the habit of choosing a chart's form from the question it answers.

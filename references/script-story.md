@@ -27,4 +27,4 @@ These came from corrections.
 - A catchy line that misled was replaced by a plainer, accurate one.
 - Each lesson must be a different lesson, named exactly.
 
-Run spoken text through a humanizer skill if you have one, then read it aloud against the speaker's sample. If it could appear on LinkedIn, rewrite it.
+Check spoken text with `references/wording.md`, then read it aloud against the speaker's sample. If it could appear on LinkedIn, rewrite it.

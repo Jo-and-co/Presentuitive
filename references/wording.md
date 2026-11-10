@@ -80,4 +80,4 @@ Plain, dry text with none of the tells above is just plain text. Leave it. These
 4. Fix what they find. Scan visible text for dashes. Read the notes aloud against the sample.
 5. Report in a line what changed, not the whole diff, unless the user asks.
 
-Adapted from the `humanizer` skill (MIT), which draws on Wikipedia's "Signs of AI writing" page.
+Adapted from the `humanizer` skill (MIT), which draws on Wikipedia's "Signs of AI writing" page. See `THIRD_PARTY_NOTICES.md`.

@@ -74,3 +74,7 @@ Issues and reports of what happened on your own deck are welcome.
 ## Licence
 
 MIT, see [LICENSE](LICENSE). Bundled fonts and Three.js keep their own licences, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Credits
+
+Parts of the written guidance adapt ideas from [humanizer](https://github.com/blader/humanizer), [frontend-slides](https://github.com/zarazhangrui/frontend-slides) and [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), all MIT. [impeccable](https://github.com/pbakaus/impeccable) and the `dataviz` skill shaped the thinking; nothing from them is copied. Details in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
