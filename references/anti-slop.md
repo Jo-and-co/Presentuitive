@@ -19,7 +19,7 @@ What makes a slide look machine-made, and the check to run before showing anythi
 | Rounded cards with drop shadows, nested cards, coloured stripes down one edge | Web-app components on a slide | Use space and type size for grouping. A box needs a reason. |
 | Blobs, waves, gradient meshes, dot grids as filler | Filling space because it looked empty | Make the main element bigger. Empty space is fine when it is on purpose. |
 | Chevrons for a process, a pyramid, a funnel, a Venn, "pillars" | Stock shapes chosen before the content | Ask what the content actually does (flows, stacks, overlaps, narrows). Use the shape only if it truly does that. |
-| Stock metaphors: lightbulb, rocket, target, puzzle pieces, gears, handshake, chess piece, summit, shield | The first image anyone would think of | Find an object that works the same way as the concept. Run it through the concept gate in `SKILL.md`. |
+| Stock metaphors: lightbulb, rocket, target, puzzle pieces, gears, handshake, chess piece, summit, shield | The first image anyone would think of | Find an object that works the same way as the concept, with the method in `references/analogies.md`. |
 
 ## Colour and type
 

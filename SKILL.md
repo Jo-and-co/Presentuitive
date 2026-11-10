@@ -165,7 +165,7 @@ Start from these. The user's preferences file or their feedback overrides any of
 
 ## Phase 3: concept gate
 
-Run new concepts and set pieces through this before sketching. Say the concept in words, then test it:
+Run new concepts and set pieces through this before sketching. Say the concept in words, then test it. To find or compare analogies, use the method in `references/analogies.md`.
 
 1. **Message without explanation.** If you need a caption to explain the metaphor, it fails.
 2. **The analogy is literally visible.** A recognisable object, not a labelled wireframe.
@@ -302,6 +302,7 @@ One session by default. Only for a very large deck, or if the user asks, split i
 | `references/engine.md` | Starting an HTML deck or touching the engine, presenter, notes or build |
 | `references/verification.md` | Before reporting done; using `audit.js`; how it was calibrated |
 | `references/anti-slop.md` | Before showing any slide; when the user says it looks AI-made or generic |
+| `references/analogies.md` | A concept needs an analogy, or the current one isn't landing |
 | `references/case-studies.md` | A concept is stuck, or you are about to attempt something big. Also holds the anti-pattern table. |
 | `references/env-gotchas.md` | A tool, shell or browser misbehaves |
 | `references/director-exec.md` | The two-session split, and how to write a gate brief |
