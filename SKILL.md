@@ -207,7 +207,8 @@ Do all of this before saying anything is done. Details in `references/verificati
 4. Walk each slide's click states for "One point per view". List any state still showing more than one point, and check the slide count against any limit.
 5. Self-critique as a designer. Is the dominant element bold enough? Does it read from the back? Would the user call it plain?
 6. Run the slop check in `references/anti-slop.md`. Would the slide still work with another talk's words? Then it isn't designed for this content.
-7. Report. State what measurement cannot prove. Tell the user how to see it: **Ctrl+Shift+R** for HTML, CSS and JS, plain **F5** for `notes.txt`.
+7. Run the wording check in `references/wording.md` on new or changed slide text and notes.
+8. Report. State what measurement cannot prove. Tell the user how to see it: **Ctrl+Shift+R** for HTML, CSS and JS, plain **F5** for `notes.txt`.
 
 **Measure with scripts first.** Take screenshots only when a check needs one or the user asks. They cost tokens and the user can see the slide.
 
@@ -252,7 +253,7 @@ Default, until a sample says otherwise:
 - No stacked moral on every anecdote. Some sections end flat.
 - No bragging.
 - Keep human uncertainty. Frame meaning around the value or difference to other people, not around the speaker.
-- Run drafts through a humanizer skill if one is available, then compare them against the sample.
+- Check every draft with `references/wording.md`, then read it aloud against the sample.
 - Their trims stand. If a trim moves load onto a slide, name it; don't argue the trim back in.
 
 ## Working style
@@ -284,7 +285,7 @@ All optional. This skill works without them, and sets direction when they are pr
 | `impeccable` | Craft and critique. The brief here still wins. | Use the self-critique in Phase 5. |
 | `ui-ux-pro-max` | Animation quality and UX checks. It can drift on colour, and its 150–300ms and mobile-first rules don't apply to compositional motion on a fixed stage. | Use `references/motion.md`. |
 | `frontend-slides` | Single-file HTML deck patterns. Consider it when starting fresh. | Use `assets/starter/`. |
-| `humanizer` | Every spoken line. | Read it aloud against the voice sample. |
+| `humanizer` | A second pass on long scripts. The voice sample still wins. | Use `references/wording.md`. |
 | A PPTX skill | The PPTX route. | pptxgenjs directly. |
 | `dataviz` | Chart forms and colour checks, within the deck's palette. | Use section 9 of `references/design-system.md`. |
 
@@ -304,6 +305,7 @@ One session by default. Only for a very large deck, or if the user asks, split i
 | `references/anti-slop.md` | Before showing any slide; when the user says it looks AI-made or generic |
 | `references/analogies.md` | A concept needs an analogy, or the current one isn't landing |
 | `references/dataviz.md` | Any chart, number or table on a slide |
+| `references/wording.md` | Writing or checking slide text, notes or spoken lines |
 | `references/case-studies.md` | A concept is stuck, or you are about to attempt something big. Also holds the anti-pattern table. |
 | `references/env-gotchas.md` | A tool, shell or browser misbehaves |
 | `references/director-exec.md` | The two-session split, and how to write a gate brief |

@@ -56,7 +56,7 @@ The full method is in `references/dataviz.md`.
 
 ## Words on the slide
 
-Spoken lines follow the Voice section in `SKILL.md`. These are the tells in on-slide text.
+Spoken lines follow the Voice section in `SKILL.md`, and the full wording check is in `references/wording.md`. These are the tells in on-slide text.
 
 | Tell | Do instead |
 |---|---|
