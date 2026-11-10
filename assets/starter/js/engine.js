@@ -251,8 +251,8 @@
         el.style.transitionDelay = (on && state.bi === b && !instant) ? '60ms' : '0ms';
       }
 
-      // counts
-      const counts = el.querySelectorAll('[data-count]');
+      // counts: the beat element itself, or anything inside it
+      const counts = [...(el.matches('[data-count]') ? [el] : []), ...el.querySelectorAll('[data-count]')];
       if (on && !was && !instant) counts.forEach(countUp);
       else if (on && instant) counts.forEach(setCountFinal);
     });

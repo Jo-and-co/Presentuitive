@@ -303,6 +303,7 @@ One session by default. Only for a very large deck, or if the user asks, split i
 | `references/verification.md` | Before reporting done; using `audit.js`; how it was calibrated |
 | `references/anti-slop.md` | Before showing any slide; when the user says it looks AI-made or generic |
 | `references/analogies.md` | A concept needs an analogy, or the current one isn't landing |
+| `references/dataviz.md` | Any chart, number or table on a slide |
 | `references/case-studies.md` | A concept is stuck, or you are about to attempt something big. Also holds the anti-pattern table. |
 | `references/env-gotchas.md` | A tool, shell or browser misbehaves |
 | `references/director-exec.md` | The two-session split, and how to write a gate brief |

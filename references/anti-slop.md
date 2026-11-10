@@ -36,6 +36,8 @@ What makes a slide look machine-made, and the check to run before showing anythi
 
 ## Charts
 
+The full method is in `references/dataviz.md`.
+
 | Tell | Do instead |
 |---|---|
 | 3D, pies with many slices, a donut used for decoration | A bar or a line. A pie only for two or three parts of one whole. |

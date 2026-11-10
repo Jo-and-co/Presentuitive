@@ -132,7 +132,7 @@ Defaults that held across every chart in the source deck:
 - Checkpoints branch off so words stay clear of the line. Enlarge them.
 - White words on dark. Pulsing points are welcome. One-click left-to-right reveal.
 - Raw before/after numbers, sized honestly. Bars or rails sized by real values. A teaser carries no numbers, so the reveal slide keeps its impact.
-- Keep it plain enough for a non-specialist. Use `dataviz` for form choices if you have it, within the deck palette.
+- Keep it plain enough for a non-specialist. Form choice, labels, honest scales and reveals: `references/dataviz.md`.
 
 ## 10. Diagrams and icons
 
