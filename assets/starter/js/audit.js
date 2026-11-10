@@ -143,6 +143,10 @@
         };
         // What sits directly behind this text. null = gradient or photo, cannot judge.
         const behind = (el, x, y) => {
+          // An element's own opaque background sits directly behind its own text
+          // (a numbered chip, a badge). Skipping it gave false CONTRAST flags.
+          const own = paint.find((p) => p.n === el && !p.svg);
+          if (own && contains(own, x, y)) return own.c || null;
           for (let i = paint.length - 1; i >= 0; i--) {
             const p = paint[i];
             if (p.n === el || el.contains(p.n)) continue;
