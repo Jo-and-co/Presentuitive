@@ -34,11 +34,17 @@ Returns `{scenes, statesChecked, counts, hueFamilies, mustFix, advice}`. Items r
 | mustFix | `TEXT_ON_MEDIA` | Text over a small image or video |
 | mustFix | `CONTRAST` | Under 4.5:1, or under 3:1 for text 24px and up |
 | mustFix | `DASH` | Em or en dash in visible text |
+| mustFix | `EMOJI` | An emoji in visible text |
 | advice | `TOO_CLOSE` | Elements nearly touching |
 | advice | `BELOW_FLOOR` | Under the content floor |
 | advice | `SMALL_TEXT`, `SMALL_BODY` | Under `minFont` or `minBody` |
 | advice | `STRAY_LAST_LINE` | A nearly empty last line |
 | advice | `UNDERUSED_SPACE` | More than 24 words filling under 42% |
+| advice | `CARD_GRID` | Three or more boxed siblings of near-equal size, the most common generated layout |
+| advice | `SLOP_WORD` | A hype word such as seamless, robust or leverage |
+| advice | `TOPIC_TITLE` | A heading that names a topic ("Overview", "Key takeaways") instead of making a point |
+
+The last three come from `references/anti-slop.md`. They find patterns, not quality: a slide can pass them and still look generated.
 
 `mustFix` is what a viewer would reject on sight. `advice` is worth a look; an approved deck can have it. Fix a must-fix, or tell the user why it stands.
 
@@ -46,7 +52,7 @@ Returns `{scenes, statesChecked, counts, hueFamilies, mustFix, advice}`. Items r
 
 ## How it was calibrated
 
-**On seeded faults** (planted at runtime, removed after, on the starter): text over a headline, off-stage text, pale words at 1.29:1, a dash, horizontal and vertical 1.5px lines through text, text on the chrome. All caught. A dash-offset line that hadn't drawn yet was correctly not flagged. An early version missed a 3px horizontal line because its sample grid fell either side of it, so it now walks along each line with `getPointAtLength`.
+**On seeded faults** (planted at runtime, removed after, on the starter): text over a headline, off-stage text, pale words at 1.29:1, a dash, horizontal and vertical 1.5px lines through text, text on the chrome. All caught. A dash-offset line that hadn't drawn yet was correctly not flagged. The slop checks were seeded the same way (three equal shadowed cards, an emoji, two hype words, a "Key takeaways" title): all caught, and the clean starter raised none. Symbols such as ©, → and ✓ are not counted as emoji. An early version missed a 3px horizontal line because its sample grid fell either side of it, so it now walks along each line with `getPointAtLength`.
 
 **On one approved real deck** (93 states, all 32 scenes): 1 `CONTRAST` flag on a deliberately dimmed line, and 8 `LINE_THROUGH_TEXT` flags where thin 1.2px spokes clipped labels. The deck was approved anyway, so read flags like these as "the script measures them; look at them", not as "ugly". Advice on the same run: `SMALL_TEXT` 14, `SMALL_BODY` 6, `BELOW_FLOOR` 3, `STRAY_LAST_LINE` 1, `UNDERUSED_SPACE` 1. No `TEXT_OVERLAP`, no `OFF_STAGE`.
 

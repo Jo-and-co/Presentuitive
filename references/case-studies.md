@@ -102,6 +102,8 @@ A range of CSS was deleted by searching between comment boundaries. A whole fami
 
 ## Anti-pattern table
 
+For the look of generated slides (cards, stock shapes, hype words), see `references/anti-slop.md`.
+
 | You're about to | The likely response | Do instead |
 |---|---|---|
 | Replace a slide because a new idea is exciting | "Why change it?" | Enhance. Propose the replacement beside it. |

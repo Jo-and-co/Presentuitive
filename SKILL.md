@@ -206,7 +206,8 @@ Do all of this before saying anything is done. Details in `references/verificati
 3. Scan computed colours for anything outside the palette.
 4. Walk each slide's click states for "One point per view". List any state still showing more than one point, and check the slide count against any limit.
 5. Self-critique as a designer. Is the dominant element bold enough? Does it read from the back? Would the user call it plain?
-6. Report. State what measurement cannot prove. Tell the user how to see it: **Ctrl+Shift+R** for HTML, CSS and JS, plain **F5** for `notes.txt`.
+6. Run the slop check in `references/anti-slop.md`. Would the slide still work with another talk's words? Then it isn't designed for this content.
+7. Report. State what measurement cannot prove. Tell the user how to see it: **Ctrl+Shift+R** for HTML, CSS and JS, plain **F5** for `notes.txt`.
 
 **Measure with scripts first.** Take screenshots only when a check needs one or the user asks. They cost tokens and the user can see the slide.
 
@@ -223,6 +224,7 @@ Full detail in `references/design-system.md`.
 - Text 4.5:1, chart strokes 3:1, hairlines never under 2px. Text must clear contrast with any glow removed.
 - One title in one place. Corner text must not resemble in-body captions.
 - One line-icon system. Never emoji. Tasks that differ get their own diagrams, not word lists.
+- No template layouts: equal cards, three hero numbers, title and bullets, stock shapes. See `references/anti-slop.md`.
 - Think of it as UX design for slides: one anchor at a time, where does the eye go, what is safe to dim.
 
 ## Motion short list
@@ -299,6 +301,7 @@ One session by default. Only for a very large deck, or if the user asks, split i
 | `references/motion.md` | Choreographing anything: beats, registers, morphs, tiers, pacing, set pieces, Three.js |
 | `references/engine.md` | Starting an HTML deck or touching the engine, presenter, notes or build |
 | `references/verification.md` | Before reporting done; using `audit.js`; how it was calibrated |
+| `references/anti-slop.md` | Before showing any slide; when the user says it looks AI-made or generic |
 | `references/case-studies.md` | A concept is stuck, or you are about to attempt something big. Also holds the anti-pattern table. |
 | `references/env-gotchas.md` | A tool, shell or browser misbehaves |
 | `references/director-exec.md` | The two-session split, and how to write a gate brief |

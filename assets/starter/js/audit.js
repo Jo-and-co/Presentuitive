@@ -14,11 +14,19 @@
    minBody (default 22), ignore (extra CSS selector to skip), limit (default 80).
    Add data-audit-ignore to intentional ghost layers.
 
+   Slop checks (references/anti-slop.md): EMOJI is a must-fix; CARD_GRID,
+   SLOP_WORD and TOPIC_TITLE are advice that means "look again".
+
    A clean report proves there is no collision. It does not prove the slide is good. */
 (function () {
   'use strict';
   const STAGE = { w: 1600, h: 900 };
-  const MUST = new Set(['TEXT_OVERLAP', 'LINE_THROUGH_TEXT', 'OFF_STAGE', 'TEXT_ON_CHROME', 'TEXT_ON_MEDIA', 'CONTRAST', 'DASH']);
+  const MUST = new Set(['TEXT_OVERLAP', 'LINE_THROUGH_TEXT', 'OFF_STAGE', 'TEXT_ON_CHROME', 'TEXT_ON_MEDIA', 'CONTRAST', 'DASH', 'EMOJI']);
+  // Words that read as generated. Advice only: some are fine in a given field.
+  const SLOP = /\b(seamless(ly)?|robust|leverag(e|es|ed|ing)|unlock(s|ed|ing)?|empower(s|ed|ing|ment)?|transformative|game[- ]chang(er|ers|ing)|cutting[- ]edge|state[- ]of[- ]the[- ]art|next[- ]gen(eration)?|revolutionary|revolutioni[sz](e|es|ing)|synerg(y|ies|istic)|holistic|delv(e|es|ing)|paradigm shift|world[- ]class|best[- ]in[- ]class|innovative|supercharg(e|ed|es|ing)|elevat(e|es|ing)|harness(es|ing)?|tapestry|testament)\b/i;
+  // Titles that name a topic instead of saying the point.
+  const TOPIC = /^(overview|agenda|introduction|background|summary|conclusions?|key (takeaways|findings|insights)|our (approach|solution|vision|mission|team)|the (challenge|problem|solution|opportunity)|next steps|thank you!?)$/i;
+  const TITLES = '.t-display-xl,.t-display-l,.t-display-m,h1,h2';
 
   const parseRGB = (c) => {
     const m = c && c.match(/rgba?\(([^)]+)\)/);
@@ -180,6 +188,10 @@
             add(si, bi, 'SMALL_BODY', label(t.textContent) + ' ' + fs.toFixed(1) + 'px sentence, body floor ' + BODY);
           }
           if (/[–—]/.test(t.textContent)) add(si, bi, 'DASH', label(t.textContent) + ' has an em or en dash');
+          if (/\p{Emoji_Presentation}|\uFE0F/u.test(t.textContent)) add(si, bi, 'EMOJI', label(t.textContent) + ' has an emoji');
+          const sw = t.textContent.match(SLOP);
+          if (sw) add(si, bi, 'SLOP_WORD', label(t.textContent) + ' uses "' + sw[0].toLowerCase() + '"');
+          if (el.closest(TITLES) && TOPIC.test(el.closest(TITLES).textContent.trim().replace(/\s+/g, ' '))) add(si, bi, 'TOPIC_TITLE', label(t.textContent) + ' names a topic, not the point');
 
           const fg = parseRGB(el.closest('svg') ? (cs.fill !== 'none' ? cs.fill : cs.color) : cs.color);
           const f = box(rects[0]);
@@ -263,6 +275,26 @@
           const share = (last.x2 - last.x1) / widest;
           if (share < (ls[0].fs >= 40 ? .34 : .2)) add(si, bi, 'STRAY_LAST_LINE', label(ls[0].text) + ' last line is ' + Math.round(share * 100) + '% of the widest');
         });
+
+        // Equal boxed siblings: the card grid most often called generated.
+        if (bi === beats) {
+          const groups = new Map();
+          scene.querySelectorAll('*').forEach((n) => {
+            if (n.closest('svg') || n.closest(skip) || !n.textContent.trim() || !shown(n, scene)) return;
+            const cs = getComputedStyle(n);
+            const boxed = (parseRGB(cs.backgroundColor) || { a: 0 }).a > .05 || cs.boxShadow !== 'none'
+              || parseFloat(cs.borderTopWidth) + parseFloat(cs.borderLeftWidth) > 0;
+            if (!boxed) return;
+            if (!groups.has(n.parentElement)) groups.set(n.parentElement, []);
+            groups.get(n.parentElement).push(n);
+          });
+          groups.forEach((ns) => {
+            const bs = ns.map((n) => box(n.getBoundingClientRect())).filter((b) => b.w > 120 && b.h > 80);
+            if (bs.length < 3) return;
+            const same = (k) => Math.max(...bs.map((b) => b[k])) / Math.min(...bs.map((b) => b[k])) < 1.08;
+            if (same('w') && same('h')) add(si, bi, 'CARD_GRID', bs.length + ' equal boxes ' + Math.round(bs[0].w) + 'x' + Math.round(bs[0].h) + ', first ' + label(ns[0].textContent));
+          });
+        }
 
         // Space used on the final state. Statement slides are meant to be sparse.
         if (bi === beats && lines.length) {
