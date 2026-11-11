@@ -11,11 +11,14 @@
    approved 32-slide deck; see references/verification.md for what it found there.
 
    Options: from, to, floor (content floor, default 784), minFont (default 15),
-   minBody (default 22), ignore (extra CSS selector to skip), limit (default 80).
-   Add data-audit-ignore to intentional ghost layers.
+   minBody (default 22), ignore (extra CSS selector to skip), limit (default 80),
+   maxWords (default 60), maxItems (default 6), maxLine (characters, default 75),
+   alignSlop (px, default 12). Add data-audit-ignore to intentional ghost layers.
 
    Slop checks (references/anti-slop.md): EMOJI is a must-fix; CARD_GRID,
    SLOP_WORD and TOPIC_TITLE are advice that means "look again".
+   Crowding checks, all advice, on each scene's final state: WORDY, TOO_MANY_ITEMS,
+   LONG_LINE, NEAR_ALIGN, TIGHT_EDGE. Text in pre or code is not counted as words.
 
    A clean report proves there is no collision. It does not prove the slide is good. */
 (function () {
@@ -71,6 +74,7 @@
     const D = window.Deck, deck = document.getElementById('deck');
     if (!D || !deck) return { error: 'window.Deck or #deck not found' };
     const FLOOR = opts.floor || 784, MIN = opts.minFont || 15, BODY = opts.minBody || 22;
+    const MAXWORDS = opts.maxWords ?? 60, MAXITEMS = opts.maxItems ?? 6, MAXLINE = opts.maxLine ?? 75, ALIGN = opts.alignSlop ?? 12;
     const skip = '[data-audit-ignore]' + (opts.ignore ? ',' + opts.ignore : '');
     const home = D.state;
     const kill = document.createElement('style');
@@ -165,6 +169,7 @@
         };
 
         const lines = [];              // one rect per rendered line of text
+        let viewWords = 0;             // words on screen in this state, dimmed ones included
         const walker = document.createTreeWalker(scene, NodeFilter.SHOW_TEXT);
         for (let t = walker.nextNode(); t; t = walker.nextNode()) {
           if (!t.textContent.trim()) continue;
@@ -182,6 +187,7 @@
             const m = el.getScreenCTM(); fs *= (m ? m.a : 1) * K;
           }
           if (fs < 1) continue;        // collapsed by a transform, not on screen
+          if (!el.closest('pre,code')) viewWords += t.textContent.split(/\s+/).filter((w) => /[a-z]/i.test(w)).length;
           const halo = cs.stroke !== 'none' && parseFloat(cs.strokeWidth) > 1 && /stroke/.test(cs.paintOrder);
           rects.forEach((r) => { const b = box(r); lines.push({ el, text: t.textContent, b, i: ink(b), fs, o, cs, halo }); });
 
@@ -280,6 +286,19 @@
           if (share < (ls[0].fs >= 40 ? .34 : .2)) add(si, bi, 'STRAY_LAST_LINE', label(ls[0].text) + ' last line is ' + Math.round(share * 100) + '% of the widest');
         });
 
+        // Lines too long to take in at a glance. Characters per row, from the block's own widths.
+        // Final state only, and the longest block per scene, so a list reports once.
+        let longest = null;
+        if (bi === beats) byEl.forEach((ls, el) => {
+          if (el.closest('svg,pre,code') || ls[0].fs >= 40) return;
+          const texts = [...new Set(ls.map((l) => l.text))].join('');
+          const n = texts.replace(/\s+/g, ' ').trim().length;
+          const sumW = ls.reduce((s, l) => s + l.b.w, 0), widest = Math.max(...ls.map((l) => l.b.w));
+          const perRow = sumW ? Math.round(widest * n / sumW) : 0;
+          if (perRow > MAXLINE && (!longest || perRow > longest.n)) longest = { n: perRow, t: ls[0].text };
+        });
+        if (longest) add(si, bi, 'LONG_LINE', label(longest.t) + ' about ' + longest.n + ' characters a line, guide ' + MAXLINE);
+
         // Equal boxed siblings: the card grid most often called generated.
         if (bi === beats) {
           const groups = new Map();
@@ -310,6 +329,50 @@
           const y1 = Math.min(...all.map((b) => b.y)), y2 = Math.max(...all.map((b) => b.y + b.h));
           const fill = ((x2 - x1) * (y2 - y1)) / (1408 * 720);
           if (words > 24 && fill < .42) add(si, bi, 'UNDERUSED_SPACE', 'content spans ' + Math.round(x2 - x1) + 'x' + Math.round(y2 - y1) + ', ' + Math.round(fill * 100) + '% of the 1408x720 area');
+        }
+
+        // Crowding and loose formatting on the final state. Advice only: a dense
+        // reference slide can be right, but it should be a choice (references/anti-slop.md).
+        if (bi === beats && lines.length) {
+          if (viewWords > MAXWORDS) add(si, bi, 'WORDY', viewWords + ' words on screen, guide ' + MAXWORDS);
+
+          // Parallel items: siblings with the same tag and class, outside running text.
+          const sets = new Map();
+          scene.querySelectorAll('*').forEach((n) => {
+            const p = n.parentElement;
+            if (!p || n.closest('svg,pre,code') || n.closest(skip) || p.matches('h1,h2,h3,h4,p,span,a,em,strong,b,i,' + TITLES)) return;
+            if (!n.textContent.trim() || !shown(n, scene) || getComputedStyle(n).display === 'inline') return;
+            const k = n.tagName + '.' + n.getAttribute('class');
+            if (!sets.has(p)) sets.set(p, new Map());
+            const m = sets.get(p); m.set(k, (m.get(k) || []).concat(n));
+          });
+          sets.forEach((m) => m.forEach((ns) => {
+            if (ns.length > MAXITEMS) add(si, bi, 'TOO_MANY_ITEMS', ns.length + ' parallel items, first ' + label(ns[0].textContent) + ', guide ' + MAXITEMS);
+          }));
+
+          // Left edges a few px apart read as a mistake, not a choice. A boxed block
+          // aligns by its box; plain text aligns by where its letters start. Display-size
+          // text is left out: its side bearing makes a small optical indent correct.
+          const lefts = [];
+          byEl.forEach((ls, el) => {
+            if (el.closest('svg') || ls[0].fs >= 60) return;
+            const cs = getComputedStyle(el);
+            if (cs.display === 'inline' || /center|right|end/.test(cs.textAlign)) return;
+            const boxed = (parseRGB(cs.backgroundColor) || { a: 0 }).a > .05 || parseFloat(cs.borderLeftWidth) > 0;
+            lefts.push({ x: boxed ? box(el.getBoundingClientRect()).x : Math.min(...ls.map((l) => l.b.x)), t: ls[0].text });
+          });
+          lefts.sort((p, q) => p.x - q.x);
+          for (let i = 1; i < lefts.length; i++) {
+            const dx = lefts[i].x - lefts[i - 1].x;
+            if (dx > 1.5 && dx <= ALIGN) { add(si, bi, 'NEAR_ALIGN', label(lefts[i - 1].t) + ' and ' + label(lefts[i].t) + ' start ' + dx.toFixed(1) + 'px apart'); break; }
+          }
+
+          // Text outside the 1408x720 pad, short of leaving the stage (OFF_STAGE covers that).
+          for (const l of lines) {
+            const A = l.i;
+            if (A.x < 0 || A.y < 0 || A.x + A.w > STAGE.w || A.y + A.h > STAGE.h) continue;
+            if (A.x < 96 - 8 || A.x + A.w > 1504 + 8 || A.y < 64 - 8) { add(si, bi, 'TIGHT_EDGE', label(l.text) + ' box ' + rnd(A) + ' is outside the content pad'); break; }
+          }
         }
       }
     }

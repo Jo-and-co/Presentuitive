@@ -28,6 +28,7 @@ Filled in by the skill when you ask it to remember a look. The next deck starts 
 - **Reply length:**
 - **Screenshots (do you want Claude to take them, or will you):**
 - **Questions (ask early, or get on with it):**
+- **Crowded slides when redesigning (ask / split freely / keep as is):**
 
 ## Things I've had to correct more than once
 

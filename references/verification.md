@@ -21,7 +21,7 @@ __audit({ from: 0, to: 7 })
 
 Batch about 8 scenes per call, since browser automation JS calls often have a time limit (30s in the setup this was built on). Any URL works, so it can be injected into a deck that doesn't contain it. Add `?v=N` when it has changed.
 
-Options: `from`, `to`, `floor` (784), `minFont` (15), `minBody` (22), `ignore` (extra selector), `limit` (80). Add `data-audit-ignore` to intentional ghost layers. `figcaption` and `[data-audit-on-media]` are exempt from the text-on-media check.
+Options: `from`, `to`, `floor` (784), `minFont` (15), `minBody` (22), `ignore` (extra selector), `limit` (80), `maxWords` (60), `maxItems` (6), `maxLine` (75 characters), `alignSlop` (12px). Add `data-audit-ignore` to intentional ghost layers. `figcaption` and `[data-audit-on-media]` are exempt from the text-on-media check.
 
 Returns `{scenes, statesChecked, counts, hueFamilies, mustFix, advice}`. Items read `slide.beat TYPE message`.
 
@@ -43,8 +43,13 @@ Returns `{scenes, statesChecked, counts, hueFamilies, mustFix, advice}`. Items r
 | advice | `CARD_GRID` | Three or more boxed siblings of near-equal size, the most common generated layout |
 | advice | `SLOP_WORD` | A hype word such as seamless, robust or leverage |
 | advice | `TOPIC_TITLE` | A heading that names a topic ("Overview", "Key takeaways") instead of making a point |
+| advice | `WORDY` | More than `maxWords` words on screen in a scene's final state. Text in `pre` or `code` is not counted. |
+| advice | `TOO_MANY_ITEMS` | More than `maxItems` siblings with the same tag and class |
+| advice | `LONG_LINE` | Body text averaging more than `maxLine` characters a line, the longest per scene |
+| advice | `NEAR_ALIGN` | Two left edges 2 to `alignSlop` px apart. Display-size text (60px and up) is left out, since its side bearing makes a small optical indent correct. |
+| advice | `TIGHT_EDGE` | Text outside the 1408×720 content area but still on the stage |
 
-The last three come from `references/anti-slop.md`. They find patterns, not quality: a slide can pass them and still look generated.
+`CARD_GRID`, `SLOP_WORD` and `TOPIC_TITLE` come from `references/anti-slop.md`. They find patterns, not quality: a slide can pass them and still look generated. The last five are the crowding checks from the same file; they run on each scene's final state only.
 
 `mustFix` is what a viewer would reject on sight. `advice` is worth a look; an approved deck can have it. Fix a must-fix, or tell the user why it stands.
 
@@ -55,6 +60,8 @@ The last three come from `references/anti-slop.md`. They find patterns, not qual
 **On seeded faults** (planted at runtime, removed after, on the starter): text over a headline, off-stage text, pale words at 1.29:1, a dash, horizontal and vertical 1.5px lines through text, text on the chrome. All caught. A dash-offset line that hadn't drawn yet was correctly not flagged. The slop checks were seeded the same way (three equal shadowed cards, an emoji, two hype words, a "Key takeaways" title): all caught, and the clean starter raised none. Symbols such as ©, → and ✓ are not counted as emoji. An early version missed a 3px horizontal line because its sample grid fell either side of it, so it now walks along each line with `getPointAtLength`.
 
 **On one approved real deck** (93 states, all 32 scenes): 1 `CONTRAST` flag on a deliberately dimmed line, and 8 `LINE_THROUGH_TEXT` flags where thin 1.2px spokes clipped labels. The deck was approved anyway, so read flags like these as "the script measures them; look at them", not as "ugly". Advice on the same run: `SMALL_TEXT` 14, `SMALL_BODY` 6, `BELOW_FLOOR` 3, `STRAY_LAST_LINE` 1, `UNDERUSED_SPACE` 1. No `TEXT_OVERLAP`, no `OFF_STAGE`.
+
+**The crowding checks** were seeded on the starter with one slide holding nine long list items, a note 6px off the list's edge and text pushed 20px past the left margin. All five fired, once each. The clean starter raised none. On four test decks (two topics, each built by an older and a newer version of the skill), they raised one flag: a real 8px misalignment between a label and a note (`NEAR_ALIGN`, older deck). A first version also flagged a big number's 8px optical indent, so display-size text is now left out of `NEAR_ALIGN`. A code-review deck put its code in plain `div`s and reached 54 to 57 words, under the 60 guide; mark code with `pre` or `code` so it isn't counted as words.
 
 Versions: v1 raised dozens of false flags on approved slides. v2 raised 8 including false ones. v3 raised 9, all geometrically true. It has been tested on that one real deck and the starter, so expect it may need tuning on a deck with very different structure. When it is wrong, fix the script's reason, not just the instance, and record it here.
 

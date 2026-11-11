@@ -46,7 +46,7 @@ Each row cost real rounds. Read it as a list of things that will happen again un
 | 16 | Late chrome redesigns | Corner labels reworked near the end | Decide the chrome on the style tiles, not on slide 30. |
 | 17 | Late-discovered wishes | Morphs, transitions and presenter mode requested late | Ship them from day one. See "Defaults". |
 | 18 | Adjacent-slide redundancy | Two neighbouring slides making the same point | Check each slide against its neighbours at the slide-jobs stage. |
-| 19 | Crammed slides | A test deck's first run came out crammed; the second had the right amount | Apply "One point per view" before designing, without being asked. |
+| 19 | Crammed slides | A test deck's first run came out crammed; the second had the right amount | Apply "One point per view" before designing, without being asked. Slides the user already wrote are the exception: ask first ("Slides that arrive dense"). |
 | 20 | Same look on every deck | Feedback that slides looked machine-made: the same palette and type whatever the subject | Run "Style discovery": ask, then show three directions on real content before the tiles. |
 
 ## Phase 0: kickoff (whole decks only)
@@ -61,7 +61,7 @@ Ask one batched round. Skip anything the source documents already answer. Never 
 6. **Brand:** is there a brand guide, colours or a logo to honour? The look itself is settled in "Style discovery", next.
 7. **Target impression** in one sentence, such as "an honest review that still feels impressive".
 8. **Wow budget:** how many big moments, and roughly where?
-9. **Existing deck?** If so, read it before asking anything about it.
+9. **Existing deck?** If so, read it before asking anything about it. If slides are already dense, ask how to handle them in this round (see "Slides that arrive dense").
 10. **Delivery:** presenter window, single file, or both?
 11. **Light and dark:** what does each mean in this deck? One meaning each, never mixed.
 12. **Safety net:** `git init` or dated snapshots? Without history, a bad edit can't be undone.
@@ -89,7 +89,7 @@ Show the list. Get it accepted before design work on slides.
 
 ## One point per view
 
-Applies to whole decks and to new or rethought slides. On a small change, don't restructure: finish the change and mention the crowding in one line.
+Applies to whole decks and to new or rethought slides. On a small change, don't restructure: finish the change, then say in one line that the slide is crowded and offer to split it.
 
 Separate information so each graph, data set or claim is isolated. Do this by default, at the slide-jobs stage, before designing.
 
@@ -107,9 +107,21 @@ Separate information so each graph, data set or claim is isolated. Do this by de
 
 **A deck mainly meant to be read,** not presented: a PDF or a reader loses Morph and clicks, so use new slides only, and tell the user.
 
+### Slides that arrive dense
+
+A redesign starts from the user's own slides, and those are often already full. Restyling a full slide gives a crowded, badly formatted one, and splitting it silently moves content the user wrote. So when existing slides come in, count each slide's points and words before designing (the audit's `WORDY` and `TOO_MANY_ITEMS` give the words and items).
+
+If a slide has more than one point, or more than about 60 words, ask one batched question before designing those slides. Slides with one point go ahead meanwhile. List each dense slide by number with its points and word count, and offer, with a recommendation:
+
+- **Split** (usually recommended): one point per view, with the tools above. Report the slide count before and after.
+- **Condense:** keep one slide and move detail into the speaker notes. Show what would move. Nothing leaves the slide without a yes.
+- **Keep dense:** the slide is meant to be read, such as a reference table, an appendix or a handout. Design it for reading: real columns or a table, body text 22px or more, lines under 75 characters, no reveals. The crowding advice is then expected; say so in the report.
+
+The user can answer per slide. A standing answer in the preferences file or the deck brief ("Crowded slides: ask / split freely / keep as is") replaces the question. Record the answer in the decisions log.
+
 ### When to ask the user
 
-Only a stated limit triggers a question. Otherwise separate without asking.
+For slides that arrive dense, see above. For content you are writing, only a stated limit triggers a question. Otherwise separate without asking.
 
 1. **No limit stated, or the separated deck fits it:** go ahead. Report the slide count before and after, and which slides changed.
 2. **It would exceed the limit:** first use the tools that add no slides. If that leaves every view clean, go ahead and report it.
@@ -204,7 +216,7 @@ Do all of this before saying anything is done. Details in `references/verificati
 1. Run `assets/starter/js/audit.js` on **every beat of every touched scene and its neighbours**. `mustFix` must be empty, or each flag justified to the user.
 2. Prove motion gates by sampling opacity over time. A frozen frame can hide the behaviour.
 3. Scan computed colours for anything outside the palette.
-4. Walk each slide's click states for "One point per view". List any state still showing more than one point, and check the slide count against any limit.
+4. Walk each slide's click states for "One point per view". List any state still showing more than one point, and check the slide count against any limit. Read the crowding advice (`WORDY`, `TOO_MANY_ITEMS`, `LONG_LINE`, `NEAR_ALIGN`, `TIGHT_EDGE`): fix it, or name the slide the user chose to keep dense.
 5. Self-critique as a designer. Is the dominant element bold enough? Does it read from the back? Would the user call it plain?
 6. Run the slop check in `references/anti-slop.md`. Would the slide still work with another talk's words? Then it isn't designed for this content.
 7. Run the wording check in `references/wording.md` on new or changed slide text and notes.

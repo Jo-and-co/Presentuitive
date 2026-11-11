@@ -9,6 +9,7 @@ Source of truth for this deck. Keep it in the project and update it as you go. I
 - **Room and screen, whose laptop:**
 - **Talk length / Q&A length:**
 - **Slide limit (none if not stated):**
+- **Crowded slides (ask / split freely / keep as is):**
 - **Script status and authority document:**
 - **Medium (HTML / PPTX) and why:**
 - **Brand (colours, logo, fonts, or none):**

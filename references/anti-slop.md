@@ -21,6 +21,22 @@ What makes a slide look machine-made, and the check to run before showing anythi
 | Chevrons for a process, a pyramid, a funnel, a Venn, "pillars" | Stock shapes chosen before the content | Ask what the content actually does (flows, stacks, overlaps, narrows). Use the shape only if it truly does that. |
 | Stock metaphors: lightbulb, rocket, target, puzzle pieces, gears, handshake, chess piece, summit, shield | The first image anyone would think of | Find an object that works the same way as the concept, with the method in `references/analogies.md`. |
 
+## Crowding and formatting
+
+The most common complaint after "generic" is "too much on it". It usually starts with a dense source slide that was restyled instead of rethought. How to handle one is in SKILL.md, "Slides that arrive dense": ask the user to split, condense or keep it dense, and don't decide silently.
+
+| Tell | Why it reads badly | Do instead | Audit flag |
+|---|---|---|---|
+| More than about 60 words on screen at once | The audience reads instead of listening, and finishes before the speaker | Split, or move detail into the notes | `WORDY` |
+| More than six parallel items (bullets, boxes, rows) | Nothing stands out, so nothing is remembered | Group them, split them, or show the three that matter and put the rest in the notes | `TOO_MANY_ITEMS` |
+| Body lines over about 75 characters | The eye loses its place returning to the next line | Narrow the column, or use two | `LONG_LINE` |
+| Left edges a few px apart | Looks like a mistake, not a choice | Snap to one edge, or offset clearly (24px or more) | `NEAR_ALIGN` |
+| Text pushed into the margins to fit | The slide looks overfilled, and projectors crop edges | Cut or split. Keep text inside the content area. | `TIGHT_EDGE` |
+| Type shrunk until it fits | Unreadable from the back; the clearest sign of a crammed slide | Body stays 22px or more. If it won't fit, the slide has too much on it. | `SMALL_BODY` |
+| Uneven gaps between blocks | The grouping becomes unclear | One spacing scale. Related items close, separate groups far apart. | (look) |
+
+All of these are advice. A reference slide the user chose to keep dense will raise them; that is expected. The fix is never to shrink the type.
+
 ## Colour and type
 
 | Tell | Do instead |
